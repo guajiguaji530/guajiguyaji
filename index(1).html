@@ -1,0 +1,2827 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🐦 越冬归途 · 迁徙版</title>
+<style>
+/* ===== 全局重置 & 基础 ===== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+	min-height: 100vh;
+	display: flex;
+	justify-content: center;
+	padding: 10px;
+	font-family: 'Segoe UI', system-ui, sans-serif;
+	transition: background 1.2s ease;
+	position: relative;
+	overflow-x: hidden;
+}
+body.spring { background: linear-gradient(145deg, #d4e8c8, #a8c99b); }
+body.summer { background: linear-gradient(145deg, #f7e6b0, #e8c97a); }
+body.autumn { background: linear-gradient(145deg, #e8c9a0, #d4a86a); }
+body.winter { background: linear-gradient(145deg, #dce8f0, #b0c8d8); }
+body.home {
+	background: linear-gradient(145deg, #2a3a4a, #1a2a3a);
+}
+body.home .start-box {
+	background: linear-gradient(145deg, #3a4a5a, #2a3a4a);
+	border-color: #5a7a8a;
+}
+body.home .start-box .season-title { color: #e8f0f8; }
+body.home .start-box .season-sub { color: #a8c8d8; }
+body.home .start-btn {
+	background: linear-gradient(145deg, #5a8a9a, #3a6a7a) !important;
+	color: #f0f8ff !important;
+	box-shadow: 0 8px 30px rgba(0,0,0,0.5) !important;
+}
+body.home .start-btn:hover { background: linear-gradient(145deg, #6a9aaa, #4a7a8a) !important; }
+body.home .achievement-btn, body.home .knowledge-btn, body.home .rulebook-btn {
+	background: rgba(60,80,100,0.85) !important;
+	border-color: #6a8a9a !important;
+	color: #e8f0f8 !important;
+}
+body.home .achievement-btn:hover, body.home .knowledge-btn:hover, body.home .rulebook-btn:hover {
+	background: rgba(80,100,120,0.85) !important;
+}
+body.home .achievement-btn .badge-count { background: #5a8a9a; }
+.rulebook-btn { border-color: #8ab8c8 !important; }
+
+/* ===== 粒子效果 ===== */
+#particles {
+	position: fixed; top: 0; left: 0;
+	width: 100%; height: 100%;
+	pointer-events: none; z-index: 1;
+	overflow: hidden;
+}
+.particle {
+	position: absolute; pointer-events: none;
+	opacity: 0.2; border-radius: 50%;
+	animation-timing-function: ease-in;
+}
+.particle.spring { animation: fallSpring 8s linear infinite; background: rgba(255,150,180,0.2); width: 5px; height: 5px; }
+.particle.summer { animation: fallSummer 5s ease-in infinite; background: rgba(255,215,0,0.15); width: 7px; height: 7px; }
+.particle.autumn { animation: fallAutumn 7s ease-in infinite; background: rgba(200,100,40,0.2); width: 5px; height: 5px; }
+.particle.winter { animation: fallWinter 9s ease-in infinite; background: rgba(255,255,255,0.15); width: 4px; height: 4px; }
+@keyframes fallSpring {
+	0% { transform: translateY(-10vh); opacity: 0; }
+	10% { opacity: 0.2; }
+	90% { opacity: 0.2; }
+	100% { transform: translateY(110vh) translateX(40px); opacity: 0; }
+}
+@keyframes fallSummer {
+	0% { transform: translateY(-10vh); opacity: 0; }
+	10% { opacity: 0.15; }
+	90% { opacity: 0.15; }
+	100% { transform: translateY(110vh) translateX(-30px); opacity: 0; }
+}
+@keyframes fallAutumn {
+	0% { transform: translateY(-10vh); opacity: 0; }
+	10% { opacity: 0.2; }
+	90% { opacity: 0.2; }
+	100% { transform: translateY(110vh) translateX(50px); opacity: 0; }
+}
+@keyframes fallWinter {
+	0% { transform: translateY(-10vh); opacity: 0; }
+	10% { opacity: 0.15; }
+	90% { opacity: 0.15; }
+	100% { transform: translateY(110vh) translateX(-20px); opacity: 0; }
+}
+@keyframes flashWhite {
+	0% { opacity: 0; } 30% { opacity: 0.2; } 60% { opacity: 0; } 100% { opacity: 0; }
+}
+.flash-overlay {
+	position: fixed; top: 0; left: 0;
+	width: 100%; height: 100%;
+	pointer-events: none; z-index: 1000;
+	background: white;
+	animation: flashWhite 0.8s ease-out;
+}
+
+/* ===== 水印样式（两行，只在主页显示） ===== */
+.watermark-home {
+	position: fixed;
+	bottom: 16px;
+	right: 16px;
+	z-index: 9999;
+	pointer-events: none;
+	user-select: none;
+	text-align: right;
+	opacity: 0;
+	transition: opacity 0.5s ease;
+}
+body.home .watermark-home {
+	opacity: 1;
+}
+.watermark-home .line1 {
+	font-size: 1.2rem;
+	color: rgba(200, 220, 240, 0.5);
+	font-family: 'Microsoft YaHei', 'PingFang SC', 'Helvetica Neue', sans-serif;
+	letter-spacing: 3px;
+	text-shadow: 0 0 20px rgba(100, 180, 220, 0.15);
+}
+.watermark-home .line2 {
+	font-size: 0.8rem;
+	color: rgba(200, 220, 240, 0.3);
+	font-family: 'Microsoft YaHei', 'PingFang SC', 'Helvetica Neue', sans-serif;
+	letter-spacing: 2px;
+	margin-top: 4px;
+	text-shadow: 0 0 15px rgba(100, 180, 220, 0.1);
+}
+@media (max-width: 480px) {
+	.watermark-home .line1 {
+		font-size: 1rem;
+		letter-spacing: 2px;
+	}
+	.watermark-home .line2 {
+		font-size: 0.65rem;
+		letter-spacing: 1px;
+	}
+	.watermark-home {
+		bottom: 12px;
+		right: 12px;
+	}
+}
+
+/* ===== 音乐按钮 & 音量控制 ===== */
+.music-toggle {
+	position: fixed;
+	top: 60px;
+	right: 12px;
+	z-index: 6000;
+	background: rgba(0,0,0,0.3);
+	backdrop-filter: blur(4px);
+	border: none;
+	border-radius: 50%;
+	width: 44px;
+	height: 44px;
+	color: #fff;
+	font-size: 1.5rem;
+	cursor: pointer;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: background 0.2s;
+	user-select: none;
+}
+.music-toggle:hover { background: rgba(0,0,0,0.5); }
+
+.volume-overlay {
+	position: fixed;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
+	background: rgba(0,0,0,0.5);
+	backdrop-filter: blur(4px);
+	display: none;
+	justify-content: center;
+	align-items: center;
+	z-index: 9000;
+	animation: fadeIn 0.3s ease;
+}
+.volume-overlay.show { display: flex; }
+.volume-box {
+	background: rgba(30,40,50,0.95);
+	border-radius: 24px;
+	padding: 30px 35px 35px;
+	max-width: 320px;
+	width: 85%;
+	animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+	border: 2px solid #5a7a8a;
+	box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+.volume-box h3 {
+	color: #e8f0f8;
+	font-size: 1rem;
+	text-align: center;
+	margin-bottom: 16px;
+	letter-spacing: 2px;
+}
+.volume-box .vol-row { margin-bottom: 14px; }
+.volume-box .vol-row label {
+	color: #a8c8d8;
+	font-size: 0.8rem;
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 4px;
+}
+.volume-box .vol-row label span { color: #e8f0f8; font-weight: bold; }
+.volume-box input[type="range"] {
+	width: 100%;
+	height: 6px;
+	-webkit-appearance: none;
+	background: #3a5a6a;
+	border-radius: 4px;
+	outline: none;
+}
+.volume-box input[type="range"]::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: #5a8a9a;
+	cursor: pointer;
+	border: 2px solid #8ab8c8;
+}
+.volume-box input[type="range"]::-moz-range-thumb {
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: #5a8a9a;
+	cursor: pointer;
+	border: 2px solid #8ab8c8;
+}
+.volume-box .close-vol-btn {
+	display: block;
+	margin: 16px auto 0;
+	padding: 8px 30px;
+	border-radius: 30px;
+	border: none;
+	font-weight: bold;
+	font-size: 0.9rem;
+	cursor: pointer;
+	background: #5a8a9a;
+	color: #fff;
+	transition: 0.2s;
+}
+.volume-box .close-vol-btn:hover { background: #6a9aaa; }
+
+/* ===== 开始界面 ===== */
+.start-overlay {
+	position: fixed;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
+	z-index: 5000;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	background: rgba(0,0,0,0.6);
+	backdrop-filter: blur(4px);
+	animation: fadeIn 0.8s ease;
+}
+.start-overlay.hidden { display: none; }
+.start-overlay .start-box {
+	background: linear-gradient(145deg, #3a4a5a, #2a3a4a);
+	border-radius: 60px;
+	padding: 40px 50px;
+	max-width: 420px;
+	width: 90%;
+	text-align: center;
+	box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+	border: 3px solid #5a7a8a;
+	position: relative;
+	overflow: hidden;
+}
+.start-overlay .start-box::before {
+	content: '';
+	position: absolute;
+	top: -50%;
+	left: -50%;
+	width: 200%;
+	height: 200%;
+	background: radial-gradient(circle at center, rgba(100,180,220,0.05) 0%, transparent 70%);
+	pointer-events: none;
+}
+.start-overlay .start-box .big-icon { font-size: 5rem; display: block; margin-bottom: 8px; animation: float 3s ease-in-out infinite; }
+.start-overlay .start-box .season-title { font-size: 2.4rem; font-weight: 900; color: #e8f0f8; text-shadow: 0 2px 20px rgba(0,0,0,0.3); letter-spacing: 4px; }
+.start-overlay .start-box .season-sub { font-size: 1rem; color: #a8c8d8; margin-top: 6px; opacity: 0.8; font-weight: 300; letter-spacing: 2px; }
+.start-overlay .start-btn {
+	margin-top: 20px;
+	padding: 16px 48px;
+	font-size: 1.4rem;
+	font-weight: 900;
+	border: none;
+	border-radius: 60px;
+	background: linear-gradient(145deg, #5a8a9a, #3a6a7a);
+	color: #f0f8ff;
+	box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+	cursor: pointer;
+	transition: 0.2s;
+	animation: pulse 2s ease-in-out infinite;
+	letter-spacing: 2px;
+}
+.start-overlay .start-btn:hover { transform: scale(1.05); background: linear-gradient(145deg, #6a9aaa, #4a7a8a); }
+.start-overlay .start-btn:active { transform: scale(0.95); }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+.start-btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; align-items: center; }
+.start-btn-group .btn-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.achievement-btn, .knowledge-btn, .rulebook-btn {
+	padding: 10px 24px;
+	border-radius: 40px;
+	border: 2px solid #6a8a9a;
+	background: rgba(60,80,100,0.85);
+	font-size: 0.95rem;
+	font-weight: bold;
+	color: #e8f0f8;
+	cursor: pointer;
+	transition: 0.2s;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.achievement-btn:hover, .knowledge-btn:hover, .rulebook-btn:hover { background: rgba(80,100,120,0.85); transform: scale(1.05); }
+.achievement-btn .badge-count { background: #5a8a9a; color: #fff; border-radius: 50%; padding: 2px 10px; font-size: 0.8rem; }
+.rulebook-btn { border-color: #8ab8c8; }
+/* ===== 成就弹窗 ===== */
+.achievement-overlay {
+	position: fixed;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
+	background: rgba(0,0,0,0.75);
+	backdrop-filter: blur(8px);
+	display: none;
+	justify-content: center;
+	align-items: center;
+	z-index: 7000;
+	animation: fadeIn 0.4s ease;
+}
+.achievement-overlay.show { display: flex; }
+.achievement-box {
+	background: linear-gradient(145deg, #f5f0e0, #e8dcc8);
+	border-radius: 40px;
+	padding: 30px 35px 35px;
+	max-width: 480px;
+	width: 92%;
+	max-height: 85vh;
+	overflow-y: auto;
+	animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+	box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+	border: 4px solid #b8863d;
+}
+.achievement-box h2 { text-align: center; font-size: 1.8rem; color: #4a2a0a; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.achievement-box .close-ach-btn { display: block; margin: 16px auto 0; padding: 10px 40px; border-radius: 40px; border: none; font-weight: bold; font-size: 1rem; cursor: pointer; background: #fedb7d; box-shadow: 0 4px 0 #8f6724; transition: 0.06s; }
+.achievement-box .close-ach-btn:active { transform: translateY(4px); box-shadow: none; }
+.achievement-item {
+	display: flex; align-items: center; gap: 14px; padding: 12px 16px; margin-bottom: 10px;
+	border-radius: 16px; background: rgba(255,255,255,0.6); border: 2px solid #d4c8a8; transition: 0.2s;
+}
+.achievement-item.unlocked { border-color: #f5b342; background: rgba(255,248,220,0.8); }
+.achievement-item.locked { opacity: 0.5; filter: grayscale(0.6); }
+.achievement-item .ach-icon { font-size: 2.2rem; width: 48px; text-align: center; }
+.achievement-item .ach-info { flex: 1; }
+.achievement-item .ach-name { font-weight: 900; font-size: 1.05rem; color: #2a1a0a; }
+.achievement-item .ach-desc { font-size: 0.8rem; color: #6a5a4a; }
+.achievement-item .ach-title { font-size: 0.7rem; color: #b8863d; font-weight: bold; }
+.achievement-item .ach-status { font-size: 0.8rem; padding: 2px 12px; border-radius: 30px; background: #6a5a4a; color: #fff; }
+.achievement-item.unlocked .ach-status { background: #2a8a4a; }
+
+/* ===== 新成就解锁弹窗 ===== */
+.new-achieve-overlay {
+	position: fixed;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
+	background: rgba(0,0,0,0.7);
+	backdrop-filter: blur(6px);
+	display: none;
+	justify-content: center;
+	align-items: center;
+	z-index: 8000;
+	animation: fadeIn 0.5s ease;
+}
+.new-achieve-overlay.show { display: flex; }
+.new-achieve-box {
+	background: linear-gradient(145deg, #f5f0d0, #e8d8a0);
+	border-radius: 40px;
+	padding: 40px 35px 35px;
+	max-width: 400px;
+	width: 90%;
+	text-align: center;
+	animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+	border: 4px solid #f5b342;
+	box-shadow: 0 0 60px rgba(245, 179, 66, 0.3);
+}
+.new-achieve-box .big-icon { font-size: 5rem; animation: float 1.5s ease-in-out infinite; }
+.new-achieve-box .new-title { font-size: 1.6rem; font-weight: 900; color: #3d2a0a; }
+.new-achieve-box .new-name { font-size: 2.2rem; font-weight: 900; color: #b8863d; }
+.new-achieve-box .new-desc { font-size: 1rem; color: #5a4a2a; margin-top: 4px; }
+.new-achieve-box .new-btn { margin-top: 18px; padding: 12px 40px; border-radius: 40px; border: none; font-weight: bold; font-size: 1rem; cursor: pointer; background: #fedb7d; box-shadow: 0 4px 0 #8f6724; transition: 0.06s; }
+.new-achieve-box .new-btn:active { transform: translateY(4px); box-shadow: none; }
+
+/* ===== 鸟类保护知识弹窗 ===== */
+.knowledge-overlay {
+	position: fixed;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
+	background: rgba(0,0,0,0.75);
+	backdrop-filter: blur(8px);
+	display: none;
+	justify-content: center;
+	align-items: center;
+	z-index: 7000;
+	animation: fadeIn 0.4s ease;
+}
+.knowledge-overlay.show { display: flex; }
+.knowledge-box {
+	background: linear-gradient(145deg, #e8f5e8, #c8e0c8);
+	border-radius: 40px;
+	padding: 30px 35px 35px;
+	max-width: 520px;
+	width: 92%;
+	max-height: 85vh;
+	overflow-y: auto;
+	animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+	box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+	border: 4px solid #3d8a4a;
+}
+.knowledge-box h2 { text-align: center; font-size: 1.8rem; color: #1a3a1a; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.knowledge-box .close-know-btn { display: block; margin: 16px auto 0; padding: 10px 40px; border-radius: 40px; border: none; font-weight: bold; font-size: 1rem; cursor: pointer; background: #3d8a4a; color: #fff; box-shadow: 0 4px 0 #1a5a2a; transition: 0.06s; }
+.knowledge-box .close-know-btn:active { transform: translateY(4px); box-shadow: none; }
+.knowledge-section { margin-bottom: 16px; }
+.knowledge-section h3 { font-size: 1.1rem; color: #1a4a1a; border-bottom: 2px solid #5a9a5a; padding-bottom: 4px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.knowledge-item {
+	display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; margin-bottom: 8px;
+	border-radius: 12px; background: rgba(255,255,255,0.6); border-left: 4px solid #3d8a4a;
+}
+.knowledge-item .k-icon { font-size: 1.8rem; width: 40px; text-align: center; flex-shrink: 0; }
+.knowledge-item .k-info { flex: 1; }
+.knowledge-item .k-name { font-weight: 900; font-size: 0.95rem; color: #1a3a1a; }
+.knowledge-item .k-desc { font-size: 0.8rem; color: #3a5a3a; }
+.knowledge-item .k-status { font-size: 0.7rem; padding: 2px 10px; border-radius: 20px; background: #8a3a3a; color: #fff; display: inline-block; margin-top: 2px; }
+.knowledge-item .k-status.critical { background: #8a2a2a; }
+.knowledge-item .k-status.endangered { background: #c87a2a; }
+.knowledge-item .k-status.vulnerable { background: #c8a82a; }
+.knowledge-tip { background: rgba(255,255,200,0.6); border-radius: 12px; padding: 12px 16px; margin-top: 10px; border: 2px dashed #5a9a5a; font-size: 0.85rem; color: #2a4a2a; }
+.knowledge-tip .tip-item { padding: 3px 0; display: flex; align-items: center; gap: 8px; }
+
+/* ===== 规则手册弹窗 ===== */
+.rulebook-overlay {
+	position: fixed;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
+	background: rgba(0,0,0,0.7);
+	backdrop-filter: blur(6px);
+	display: none;
+	justify-content: center;
+	align-items: center;
+	z-index: 7200;
+	animation: fadeIn 0.4s ease;
+}
+.rulebook-overlay.show { display: flex; }
+
+.rulebook-box {
+	background: linear-gradient(160deg, #f5f0e8, #e8e0d8);
+	border-radius: 32px;
+	padding: 30px 32px 32px;
+	max-width: 560px;
+	width: 92%;
+	max-height: 85vh;
+	overflow-y: auto;
+	animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+	box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+	border: 3px solid #b8863d;
+	font-family: 'Segoe UI', system-ui, sans-serif;
+}
+.rulebook-box h2 {
+	text-align: center;
+	font-size: 1.6rem;
+	color: #3d2a0a;
+	margin-bottom: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	border-bottom: 2px solid #d4c8a8;
+	padding-bottom: 10px;
+}
+.rulebook-box .close-rb-btn {
+	display: block;
+	margin: 16px auto 0;
+	padding: 10px 40px;
+	border-radius: 40px;
+	border: none;
+	font-weight: bold;
+	font-size: 1rem;
+	cursor: pointer;
+	background: #b8863d;
+	color: #fff;
+	box-shadow: 0 4px 0 #8a6724;
+	transition: 0.06s;
+}
+.rulebook-box .close-rb-btn:active { transform: translateY(4px); box-shadow: none; }
+
+.rulebook-box .rb-section { margin-bottom: 14px; }
+.rulebook-box .rb-section h3 {
+	font-size: 1rem;
+	color: #4a2a0a;
+	border-left: 4px solid #b8863d;
+	padding-left: 10px;
+	margin-bottom: 6px;
+}
+.rulebook-box .rb-section p, .rulebook-box .rb-section li {
+	font-size: 0.85rem;
+	color: #4a3a2a;
+	line-height: 1.5;
+	margin: 2px 0;
+}
+.rulebook-box .rb-section ul { padding-left: 20px; margin: 4px 0; }
+.rulebook-box .rb-section li { list-style: disc; }
+.rulebook-box .rb-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 3px 10px;
+	font-size: 0.75rem;
+	background: rgba(255,255,255,0.3);
+	border-radius: 10px;
+	padding: 6px 10px;
+}
+.rulebook-box .rb-grid .rb-item {
+	display: flex;
+	justify-content: space-between;
+	padding: 2px 0;
+	border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+.rulebook-box .rb-grid .rb-item .rb-name { font-weight: 600; color: #2a1a0a; }
+.rulebook-box .rb-grid .rb-item .rb-desc { color: #6a5a4a; font-size: 0.7rem; }
+.rb-tip {
+	background: rgba(200,180,160,0.2);
+	border-radius: 10px;
+	padding: 6px 12px;
+	font-size: 0.8rem;
+	color: #4a3a2a;
+	border-left: 3px solid #b8863d;
+	margin-top: 4px;
+}
+
+/* ===== 季节过渡 ===== */
+.season-transition {
+	position: fixed;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
+	z-index: 3000;
+	display: none;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	pointer-events: none;
+	animation: seasonFade 2.8s ease forwards;
+}
+.season-transition.show { display: flex; }
+@keyframes seasonFade {
+	0% { opacity: 0; transform: scale(0.85); }
+	15% { opacity: 1; transform: scale(1); }
+	75% { opacity: 1; transform: scale(1); }
+	100% { opacity: 0; transform: scale(1.08); }
+}
+.season-transition .big-icon { font-size: 5rem; animation: float 1.5s ease-in-out infinite; }
+.season-transition .season-title { font-size: 2.8rem; font-weight: 900; margin-top: 10px; text-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+.season-transition .season-poem { font-size: 1.3rem; font-style: italic; margin-top: 8px; opacity: 0.9; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+.season-transition.spring-bg { background: rgba(180, 220, 160, 0.88); color: #1a3a1a; }
+.season-transition.summer-bg { background: rgba(255, 220, 100, 0.88); color: #5a3a0a; }
+.season-transition.autumn-bg { background: rgba(220, 160, 80, 0.88); color: #3a1a0a; }
+.season-transition.winter-bg { background: rgba(200, 220, 240, 0.88); color: #1a2a4a; }
+@keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+@keyframes popIn { 0% { transform: scale(0.5); opacity:0; } 70% { transform: scale(1.05); } 100% { transform: scale(1); opacity:1; } }
+@keyframes heartBeat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.3); } 30% { transform: scale(1); } 45% { transform: scale(1.2); } 60% { transform: scale(1); } }
+
+/* ===== 游戏主界面 ===== */
+.game {
+	max-width: 520px;
+	width: 100%;
+	background: rgba(255,255,240,0.88);
+	backdrop-filter: blur(4px);
+	border-radius: 28px;
+	padding: 14px;
+	box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+	position: relative;
+	z-index: 10;
+}
+body.spring .game { background: rgba(235,248,225,0.92); }
+body.summer .game { background: rgba(255,248,220,0.92); }
+body.autumn .game { background: rgba(248,235,210,0.92); }
+body.winter .game { background: rgba(230,240,248,0.92); }
+
+h1 { font-size: 1.2rem; text-align: center; display: flex; justify-content: center; align-items: center; gap: 6px; flex-wrap: wrap; }
+.season-icon { font-size: 1.6rem; }
+.season-name { font-size: 0.8rem; background: rgba(0,0,0,0.08); padding: 2px 14px; border-radius: 30px; }
+.info-bar {
+	display: flex; justify-content: space-between;
+	background: rgba(0,0,0,0.08); border-radius: 30px;
+	padding: 3px 10px; font-weight: bold; font-size: 0.7rem; margin: 3px 0 5px;
+	flex-wrap: wrap;
+}
+.season-badge { text-align: center; font-size: 0.85rem; padding: 2px 0; font-weight: bold; }
+.card-container { margin: 6px auto; display: flex; justify-content: center; }
+.card {
+	width: 290px; height: 150px;
+	position: relative;
+	border-radius: 20px;
+	cursor: pointer;
+	box-shadow: 0 6px 25px rgba(0,0,0,0.3);
+	transition: transform 0.3s;
+	overflow: hidden;
+}
+.card-face {
+	position: absolute;
+	width: 100%; height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	padding: 14px;
+	text-align: center;
+	font-weight: bold;
+	border-radius: 20px;
+	user-select: none;
+	transition: opacity 0.5s ease;
+}
+.card-back {
+	background: linear-gradient(145deg, #2a4a3a, #1a2a1a);
+	color: #b8d4a8;
+	border: 4px solid #5a7a4a;
+	font-size: 3.5rem;
+	z-index: 2;
+}
+.card-back::before { content: "🃏"; }
+.card-front {
+	background: #fdf8e8;
+	border: 4px solid #b8863d;
+	color: #2a1a0a;
+	font-size: 1.0rem;
+	z-index: 1;
+	opacity: 0;
+	pointer-events: none;
+}
+.card-front.positive { border-color: #2a8a4a; background: #e8f5e0; }
+.card-front.negative { border-color: #8a4a4a; background: #f5e8e8; }
+.card-front .big-text { font-size: 1.2rem; font-weight: 900; color: #1a2a0a; }
+.card-front .sub-text { font-size: 0.9rem; font-weight: normal; color: #2a3a1a; margin-top: 2px; }
+.card-front .poem-text { font-size: 0.8rem; font-style: italic; color: #4a3a2a; margin-top: 4px; }
+.card.show-front .card-back { opacity: 0; pointer-events: none; }
+.card.show-front .card-front { opacity: 1; pointer-events: auto; }
+
+.bird-card-flip {
+	display: inline-block;
+	perspective: 600px;
+	width: 80px;
+	height: 48px;
+	cursor: pointer;
+	margin: 0 2px;
+	margin-left: auto;
+	flex-shrink: 0;
+	vertical-align: middle;
+}
+.bird-card-flip .bird-flip-inner {
+	position: relative;
+	width: 100%; height: 100%;
+	transform-style: preserve-3d;
+	transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+	border-radius: 10px;
+}
+.bird-card-flip .bird-flip-inner.flipped { transform: rotateY(180deg); }
+.bird-card-flip .bird-flip-face {
+	position: absolute;
+	width: 100%; height: 100%;
+	backface-visibility: hidden;
+	border-radius: 10px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	font-size: 0.6rem;
+	font-weight: bold;
+	padding: 3px;
+	text-align: center;
+	border: 2px solid #b8863d;
+}
+.bird-card-flip .bird-flip-front {
+	background: linear-gradient(145deg, #f5f0d0, #e8d8a0);
+	transform: rotateY(0deg);
+}
+.bird-card-flip .bird-flip-front .bf-name { font-size: 0.7rem; font-weight: 900; color: #1a4a1a; }
+.bird-card-flip .bird-flip-front .bf-identity { font-size: 0.5rem; color: #666; }
+.bird-card-flip .bird-flip-back {
+	background: linear-gradient(145deg, #d0e8d0, #a8c8a0);
+	transform: rotateY(180deg);
+}
+.bird-card-flip .bird-flip-back .bf-habitat { font-size: 0.6rem; color: #1a3a1a; }
+
+.player-list {
+	display: flex; flex-direction: column; gap: 3px;
+	margin-bottom: 6px; max-height: 34vh; overflow-y: auto;
+}
+.player-card {
+	background: rgba(255,255,255,0.6); border-radius: 10px;
+	padding: 5px 8px; display: flex; flex-direction: column;
+	border-left: 4px solid #3d6b41; font-size: 0.7rem;
+	transition: 0.2s; gap: 2px;
+}
+.player-card .row1 { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 2px; }
+.player-card .row2 { display: flex; flex-wrap: wrap; gap: 2px; font-size: 0.6rem; background: rgba(0,0,0,0.04); border-radius: 6px; padding: 2px 6px; }
+.player-card .stats { display: flex; gap: 3px; font-size: 0.65rem; flex-wrap: wrap; }
+.player-card .stats span {
+	background: #2e4d30; color: #e9f3df; padding: 0 5px; border-radius: 20px;
+	display: inline-flex; align-items: center; gap: 2px;
+}
+body.summer .player-card .stats span { background: #8f7a3a; }
+body.autumn .player-card .stats span { background: #8f6a3a; }
+body.winter .player-card .stats span { background: #3a5a7a; }
+.dead { opacity: 0.4; border-left-color: #999; }
+.has-bet { border-left-color: #f5b342 !important; background: #fff8e0; }
+.has-skill { border-left-color: #d44 !important; background: #ffe8e8; }
+.immune-badge { border-left-color: #4a8ac8 !important; background: #e0f0ff; }
+.ai-tag { background: #6a4a8a; color: #fff; padding: 0 6px; border-radius: 30px; font-size: 0.5rem; }
+.human-tag { background: #2a6a8a; color: #fff; padding: 0 6px; border-radius: 30px; font-size: 0.5rem; }
+.skill-tag { background: #2a6a8a; color: #fff; padding: 0 5px; border-radius: 30px; font-size: 0.5rem; }
+.passive-tag { background: #2a8a6a; color: #fff; padding: 0 5px; border-radius: 30px; font-size: 0.5rem; }
+
+.habitats { display: flex; gap: 4px; margin: 5px 0; }
+.habitats button {
+	flex: 1; padding: 8px 0; border-radius: 30px;
+	border: 3px solid #4d7352; background: rgba(200,220,190,0.6);
+	font-weight: bold; font-size: 0.8rem; cursor: pointer; transition: 0.15s;
+}
+.habitats button:active { transform: scale(0.94); }
+.habitats button.active { background: #f5ffd6; border-color: #b8863d; }
+.habitats button:disabled { opacity: 0.4; transform: none; }
+
+.btn-group { display: flex; flex-wrap: wrap; gap: 3px; margin: 5px 0; }
+.btn-group button {
+	flex: 1; min-width: 34px; padding: 8px 3px; border-radius: 40px;
+	border: none; font-weight: bold; font-size: 0.7rem; cursor: pointer;
+	box-shadow: 0 4px 0 #2c5131; background: #f7fcf0; border: 2px solid #3d6b41;
+	transition: 0.06s;
+}
+.btn-group button:active { transform: translateY(4px); box-shadow: none; }
+.btn-group button:disabled { opacity: 0.4; transform: translateY(4px); pointer-events: none; }
+.btn-yellow { background: #fedb7d; border-color: #b17f2e; box-shadow: 0 4px 0 #8f6724; }
+.btn-red { background: #f7b0a0; border-color: #b14a3a; box-shadow: 0 4px 0 #8f3a2a; }
+.btn-blue { background: #a0c8f7; border-color: #3a6ab1; box-shadow: 0 4px 0 #2a4a8f; }
+.btn-green { background: #8fcf8f; border-color: #2a7a2a; box-shadow: 0 4px 0 #1a5a1a; }
+
+.log {
+	background: rgba(20,30,20,0.85); color: #dce8d0;
+	padding: 6px 10px; border-radius: 14px;
+	min-height: 45px; max-height: 90px; overflow-y: auto;
+	font-size: 0.65rem; font-family: monospace; line-height: 1.4; margin-top: 5px;
+}
+
+.overlay {
+	position: fixed;
+	top: 0; left: 0; width: 100%; height: 100%;
+	background: rgba(0,0,0,0.7);
+	backdrop-filter: blur(8px);
+	display: none;
+	justify-content: center;
+	align-items: center;
+	z-index: 2000;
+	animation: fadeIn 0.5s ease;
+}
+.overlay.show { display: flex; }
+
+.result-box {
+	background: linear-gradient(145deg, #f5f0e0, #e8dcc8);
+	border-radius: 40px;
+	padding: 40px 30px 30px;
+	max-width: 400px;
+	width: 90%;
+	text-align: center;
+	animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+	box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+	border: 4px solid #b8863d;
+}
+.result-box .result-icon { font-size: 4.5rem; animation: float 2s ease-in-out infinite; }
+.result-box .result-title { font-size: 2.2rem; font-weight: 900; margin: 10px 0 4px; }
+.result-box .result-sub { font-size: 1rem; color: #5a4010; margin-bottom: 6px; }
+.result-box .result-detail { font-size: 0.9rem; color: #3d2a0a; background: rgba(0,0,0,0.06); border-radius: 16px; padding: 10px; margin: 8px 0; }
+.result-box .result-stats { display: flex; justify-content: center; gap: 10px; font-size: 0.8rem; margin: 8px 0; flex-wrap: wrap; }
+.result-box .result-stats span { background: #2e4d30; color: #e9f3df; padding: 4px 14px; border-radius: 30px; }
+.result-box .btn-close { margin-top: 14px; padding: 12px 40px; border-radius: 40px; border: none; font-weight: bold; font-size: 1rem; cursor: pointer; background: #fedb7d; box-shadow: 0 4px 0 #8f6724; transition: 0.06s; }
+.result-box .btn-close:active { transform: translateY(4px); box-shadow: none; }
+.result-box .btn-close.secondary { background: #d0d0d0; box-shadow: 0 4px 0 #888; }
+.result-box.win { border-color: #f5b342; background: linear-gradient(145deg, #f5f0d0, #e8d8a0); }
+
+.defeat-overlay {
+	position: fixed;
+	top: 0; left: 0;
+	width: 100%; height: 100%;
+	background: rgba(0,0,0,0.8);
+	backdrop-filter: blur(10px);
+	display: none;
+	justify-content: center;
+	align-items: center;
+	z-index: 4000;
+	animation: fadeIn 0.6s ease;
+}
+.defeat-overlay.show { display: flex; }
+.defeat-box {
+	background: linear-gradient(145deg, #2a1a1a, #1a0a0a);
+	border-radius: 40px;
+	padding: 50px 40px 40px;
+	max-width: 380px;
+	width: 90%;
+	text-align: center;
+	animation: popIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+	box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+	border: 4px solid #8a2a2a;
+	position: relative;
+	overflow: hidden;
+}
+.defeat-box::before {
+	content: '';
+	position: absolute;
+	top: -50%;
+	left: -50%;
+	width: 200%;
+	height: 200%;
+	background: radial-gradient(circle at center, rgba(200,50,50,0.08) 0%, transparent 70%);
+	pointer-events: none;
+}
+.defeat-box .defeat-icon { font-size: 5rem; animation: heartBeat 1.2s ease-in-out infinite; display: inline-block; }
+.defeat-box .defeat-title { font-size: 2.4rem; font-weight: 900; color: #f0d0d0; margin: 12px 0 4px; text-shadow: 0 0 30px rgba(200,50,50,0.3); }
+.defeat-box .defeat-sub { font-size: 1.1rem; color: #c0a0a0; margin-bottom: 8px; }
+.defeat-box .defeat-detail { font-size: 0.9rem; color: #a08080; background: rgba(255,255,255,0.05); border-radius: 16px; padding: 10px; margin: 8px 0; border: 1px solid rgba(255,255,255,0.05); }
+.defeat-box .btn-restart {
+	margin-top: 18px;
+	padding: 14px 44px;
+	border-radius: 40px;
+	border: none;
+	font-weight: bold;
+	font-size: 1.1rem;
+	cursor: pointer;
+	background: linear-gradient(145deg, #6a2a2a, #4a1a1a);
+	color: #f0d0d0;
+	box-shadow: 0 4px 0 #2a0a0a;
+	transition: 0.06s;
+	border: 2px solid #8a3a3a;
+}
+.defeat-box .btn-restart:active { transform: translateY(4px); box-shadow: none; }
+.defeat-box .btn-restart:hover { background: linear-gradient(145deg, #8a3a3a, #5a2a2a); }
+
+/* ===== 技能提示弹窗（朴素版） ===== */
+.skill-toast {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%) scale(0.95);
+	background: rgba(50, 60, 70, 0.92);
+	backdrop-filter: blur(6px);
+	color: #e8f0f8;
+	padding: 20px 32px 24px;
+	border-radius: 16px;
+	z-index: 5500;
+	pointer-events: none;
+	user-select: none;
+	text-align: center;
+	opacity: 0;
+	transition: none;
+	min-width: 200px;
+	max-width: 300px;
+	box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+	border: 1px solid rgba(255,255,255,0.06);
+	font-family: 'Segoe UI', system-ui, sans-serif;
+}
+.skill-toast.show {
+	animation: toastPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.skill-toast .toast-icon {
+	font-size: 2.4rem;
+	display: block;
+	margin-bottom: 6px;
+}
+.skill-toast .toast-name {
+	font-size: 1.1rem;
+	font-weight: 700;
+	color: #f0f8ff;
+	letter-spacing: 1px;
+}
+.skill-toast .toast-desc {
+	font-size: 0.85rem;
+	color: #b0c8d8;
+	margin-top: 4px;
+	font-weight: 300;
+}
+@keyframes toastPop {
+	0% { opacity: 0; transform: translate(-50%, -50%) scale(0.85); }
+	100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes toastFade {
+	0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+	100% { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
+}
+.skill-toast.fade-out {
+	animation: toastFade 0.35s ease forwards;
+}
+</style>
+</head>
+<body class="home" id="body">
+<!-- ===== 粒子背景 ===== -->
+<div id="particles"></div>
+
+<!-- ===== 水印（两行，只在主页显示） ===== -->
+<div class="watermark-home">
+	<div class="line1">允微的游戏</div>
+	<div class="line2">呱唧呱唧天下第一</div>
+</div>
+
+<!-- ===== 音乐按钮 ===== -->
+<button class="music-toggle" id="musicToggle" ondblclick="showVolumeControl()">
+	<span id="musicIcon">🎵</span>
+</button>
+
+<!-- ===== 音量控制弹窗 ===== -->
+<div class="volume-overlay" id="volumeOverlay">
+	<div class="volume-box">
+		<h3>🎵 音量控制</h3>
+		<div class="vol-row">
+			<label>背景音乐 <span id="musicVolLabel">100%</span></label>
+			<input type="range" id="musicVolume" min="0" max="100" value="100" oninput="updateMusicVolume(this.value)">
+		</div>
+		<div class="vol-row">
+			<label>音效 <span id="sfxVolLabel">20%</span></label>
+			<input type="range" id="sfxVolume" min="0" max="100" value="20" oninput="updateSfxVolume(this.value)">
+		</div>
+		<button class="close-vol-btn" onclick="closeVolumeControl()">确定</button>
+	</div>
+</div>
+
+<!-- ===== 开始界面 ===== -->
+<div class="start-overlay" id="startOverlay">
+	<div class="start-box">
+		<div class="big-icon">❄️</div>
+		<div class="season-title">越冬归途</div>
+		<div class="season-sub">🐦 候鸟迁徙 · 穿越四季</div>
+		<button class="start-btn" onclick="startGame()">🐦 开始越冬</button>
+		<div class="start-btn-group">
+			<div class="btn-row">
+				<button class="achievement-btn" onclick="showAchievements()">🏆 成就 <span class="badge-count" id="achBadgeCount">0</span></button>
+				<button class="knowledge-btn" onclick="showKnowledge()">🌿 鸟类保护</button>
+				<button class="rulebook-btn" onclick="showRulebook()">📖 规则手册</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- ===== 成就弹窗 ===== -->
+<div class="achievement-overlay" id="achievementOverlay">
+	<div class="achievement-box">
+		<h2>🏆 成就徽章</h2>
+		<div id="achievementList"></div>
+		<button class="close-ach-btn" onclick="closeAchievements()">关闭</button>
+	</div>
+</div>
+
+<!-- ===== 新成就解锁弹窗 ===== -->
+<div class="new-achieve-overlay" id="newAchieveOverlay">
+	<div class="new-achieve-box">
+		<div class="big-icon" id="newAchIcon">🏆</div>
+		<div class="new-title">✨ 新成就解锁！</div>
+		<div class="new-name" id="newAchName">成就名称</div>
+		<div class="new-desc" id="newAchDesc">成就描述</div>
+		<div style="font-size:0.9rem; color:#8a7a5a; margin-top:4px;" id="newAchTitle">称号</div>
+		<button class="new-btn" onclick="closeNewAchieve()">太棒了！</button>
+	</div>
+</div>
+
+<!-- ===== 鸟类保护知识弹窗 ===== -->
+<div class="knowledge-overlay" id="knowledgeOverlay">
+	<div class="knowledge-box">
+		<h2>🌿 鸟类保护知识</h2>
+		<div id="knowledgeContent"></div>
+		<button class="close-know-btn" onclick="closeKnowledge()">了解啦 🌱</button>
+	</div>
+</div>
+
+<!-- ===== 规则手册弹窗 ===== -->
+<div class="rulebook-overlay" id="rulebookOverlay">
+	<div class="rulebook-box" id="rulebookBox">
+		<h2>📖 越冬归途 · 规则手册</h2>
+		<div id="rulebookContent"></div>
+		<button class="close-rb-btn" onclick="closeRulebook()">知道了</button>
+	</div>
+</div>
+
+<!-- ===== 游戏主界面 ===== -->
+<div class="game" id="app" style="display:none;">
+	<h1><span>🐦 越冬归途</span><span class="season-icon" id="seasonIcon">🌱</span><span class="season-name" id="seasonName">春</span></h1>
+	<div class="info-bar">
+		<span id="roundDisplay">第1/4轮</span>
+		<span id="phaseDisplay">🌾选地</span>
+		<span id="playerCount">2人</span>
+		<span id="modeDisplay">🤖人机</span>
+		<span id="yearDisplay">第1年</span>
+	</div>
+	<div class="season-badge" id="seasonBadge">🌱 春季 · 万物复苏</div>
+	<div class="card-container">
+		<div class="card" id="weatherCard" onclick="flipWeatherCard()">
+			<div class="card-face card-back" id="weatherBack"></div>
+			<div class="card-face card-front" id="weatherFront"><div class="big-text">🌤️ 天时</div></div>
+		</div>
+	</div>
+
+	<div class="player-list" id="playerList"></div>
+	<div class="habitats">
+		<button onclick="playerPick('wetland')">🌾湿地</button>
+		<button onclick="playerPick('forest')">🌲森林</button>
+		<button onclick="playerPick('grassland')">🌿草地</button>
+	</div>
+	<div class="btn-group">
+		<button class="btn-yellow" onclick="playerBet(1)">💰押1</button>
+		<button class="btn-yellow" onclick="playerBet(2)">💰押2</button>
+		<button class="btn-red" onclick="playerSkill()">⚡技能</button>
+		<button class="btn-blue" onclick="nextRound()">⏩结算</button>
+		<button class="btn-green" onclick="resetGame()">🔄重开</button>
+	</div>
+	<div class="log" id="log">🐣 选地 → 押注 → 翻天时 → 选技能 → 结算</div>
+</div>
+
+<!-- ===== 技能提示弹窗 ===== -->
+<div class="skill-toast" id="skillToast">
+	<span class="toast-icon" id="toastIcon">⚡</span>
+	<div class="toast-name" id="toastName">技能名称</div>
+	<div class="toast-desc" id="toastDesc">技能描述</div>
+</div>
+
+<!-- ===== 胜利弹窗 ===== -->
+<div class="overlay" id="resultOverlay">
+	<div class="result-box" id="resultBox">
+		<div class="result-icon" id="resultIcon">🏆</div>
+		<div class="result-title" id="resultTitle">越冬成功！</div>
+		<div class="result-sub" id="resultSub">你成功抵达了越冬地</div>
+		<div class="result-detail" id="resultDetail">最终能量: 5</div>
+		<div class="result-stats" id="resultStats">
+			<span id="resultPos">📍 位置 6</span>
+			<span id="resultEnergy">⚡ 能量 5</span>
+		</div>
+		<div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:8px;">
+			<button class="btn-close" onclick="nextYear()" id="nextYearBtn">🌱 再来一年</button>
+			<button class="btn-close secondary" onclick="closeResult()">🔄 重开</button>
+		</div>
+	</div>
+</div>
+
+<!-- ===== 失败弹窗 ===== -->
+<div class="defeat-overlay" id="defeatOverlay">
+	<div class="defeat-box">
+		<div class="defeat-icon">💔</div>
+		<div class="defeat-title">❄️ 越冬失败</div>
+		<div class="defeat-sub">你在寒冬中倒下了...</div>
+		<div class="defeat-detail" id="defeatDetail">能量耗尽，未能抵达越冬地</div>
+		<button class="btn-restart" onclick="restartFromDefeat()">🔄 重新开始</button>
+	</div>
+</div>
+
+<!-- ===== 季节过渡动画 ===== -->
+<div class="season-transition" id="seasonTransition">
+	<div class="big-icon" id="transIcon">🌱</div>
+	<div class="season-title" id="transTitle">春</div>
+	<div class="season-poem" id="transPoem">万物复苏</div>
+</div>
+<script>
+// ===== 音效引擎（带音量控制） =====
+let sfxVolume = 0.2;
+let musicVolume = 1.0;
+
+class SoundFX {
+	constructor() {
+		this.ctx = null;
+		this.enabled = true;
+		try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { this.enabled = false; }
+	}
+	resume() { if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume(); }
+	getVol() { return sfxVolume; }
+	flip() {
+		if (!this.enabled || !this.ctx) return;
+		this.resume();
+		const now = this.ctx.currentTime;
+		const vol = this.getVol();
+		const bufSize = this.ctx.sampleRate * 0.15;
+		const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+		const data = buf.getChannelData(0);
+		for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / bufSize * 3) * 0.6 * vol;
+		const noise = this.ctx.createBufferSource();
+		noise.buffer = buf;
+		const gain = this.ctx.createGain();
+		gain.gain.setValueAtTime(0.12 * vol, now);
+		gain.gain.exponentialRampToValueAtTime(0.005 * vol, now + 0.15);
+		noise.connect(gain);
+		gain.connect(this.ctx.destination);
+		noise.start(now);
+		noise.stop(now + 0.15);
+		const osc = this.ctx.createOscillator();
+		osc.type = 'sine';
+		osc.frequency.setValueAtTime(1500, now);
+		osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+		const g2 = this.ctx.createGain();
+		g2.gain.setValueAtTime(0.06 * vol, now);
+		g2.gain.exponentialRampToValueAtTime(0.001 * vol, now + 0.1);
+		osc.connect(g2);
+		g2.connect(this.ctx.destination);
+		osc.start(now);
+		osc.stop(now + 0.1);
+	}
+	click() {
+		if (!this.enabled || !this.ctx) return;
+		this.resume();
+		const now = this.ctx.currentTime;
+		const vol = this.getVol();
+		const osc = this.ctx.createOscillator();
+		osc.type = 'sine';
+		osc.frequency.setValueAtTime(800, now);
+		osc.frequency.exponentialRampToValueAtTime(600, now + 0.06);
+		const g = this.ctx.createGain();
+		g.gain.setValueAtTime(0.1 * vol, now);
+		g.gain.exponentialRampToValueAtTime(0.001 * vol, now + 0.06);
+		osc.connect(g);
+		g.connect(this.ctx.destination);
+		osc.start(now);
+		osc.stop(now + 0.06);
+	}
+	coin() {
+		if (!this.enabled || !this.ctx) return;
+		this.resume();
+		const now = this.ctx.currentTime;
+		const vol = this.getVol();
+		for (let i = 0; i < 3; i++) {
+			const osc = this.ctx.createOscillator();
+			osc.type = 'sine';
+			const freq = 1200 - i * 200 + Math.random() * 50;
+			osc.frequency.setValueAtTime(freq, now + i * 0.04);
+			const g = this.ctx.createGain();
+			g.gain.setValueAtTime(0.06 * vol, now + i * 0.04);
+			g.gain.exponentialRampToValueAtTime(0.001 * vol, now + i * 0.04 + 0.06);
+			osc.connect(g);
+			g.connect(this.ctx.destination);
+			osc.start(now + i * 0.04);
+			osc.stop(now + i * 0.04 + 0.06);
+		}
+	}
+	skill() {
+		if (!this.enabled || !this.ctx) return;
+		this.resume();
+		const now = this.ctx.currentTime;
+		const vol = this.getVol();
+		const osc = this.ctx.createOscillator();
+		osc.type = 'sawtooth';
+		osc.frequency.setValueAtTime(200, now);
+		osc.frequency.exponentialRampToValueAtTime(600, now + 0.15);
+		const g = this.ctx.createGain();
+		g.gain.setValueAtTime(0.08 * vol, now);
+		g.gain.exponentialRampToValueAtTime(0.001 * vol, now + 0.15);
+		osc.connect(g);
+		g.connect(this.ctx.destination);
+		osc.start(now);
+		osc.stop(now + 0.15);
+		const osc2 = this.ctx.createOscillator();
+		osc2.type = 'sine';
+		osc2.frequency.setValueAtTime(900, now);
+		osc2.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+		const g2 = this.ctx.createGain();
+		g2.gain.setValueAtTime(0.05 * vol, now);
+		g2.gain.exponentialRampToValueAtTime(0.001 * vol, now + 0.1);
+		osc2.connect(g2);
+		g2.connect(this.ctx.destination);
+		osc2.start(now);
+		osc2.stop(now + 0.1);
+	}
+	page() {
+		if (!this.enabled || !this.ctx) return;
+		this.resume();
+		const now = this.ctx.currentTime;
+		const vol = this.getVol();
+		const bufSize = this.ctx.sampleRate * 0.08;
+		const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+		const data = buf.getChannelData(0);
+		for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / bufSize * 3) * 0.5 * vol;
+		const noise = this.ctx.createBufferSource();
+		noise.buffer = buf;
+		const g = this.ctx.createGain();
+		g.gain.setValueAtTime(0.08 * vol, now);
+		g.gain.exponentialRampToValueAtTime(0.001 * vol, now + 0.08);
+		noise.connect(g);
+		g.connect(this.ctx.destination);
+		noise.start(now);
+		noise.stop(now + 0.08);
+	}
+	victory() {
+		if (!this.enabled || !this.ctx) return;
+		this.resume();
+		const now = this.ctx.currentTime;
+		const vol = this.getVol();
+		const notes = [523, 659, 784, 1047];
+		notes.forEach((freq, i) => {
+			const osc = this.ctx.createOscillator();
+			osc.type = 'sine';
+			osc.frequency.setValueAtTime(freq, now + i * 0.12);
+			const g = this.ctx.createGain();
+			g.gain.setValueAtTime(0.08 * vol, now + i * 0.12);
+			g.gain.exponentialRampToValueAtTime(0.001 * vol, now + i * 0.12 + 0.25);
+			osc.connect(g);
+			g.connect(this.ctx.destination);
+			osc.start(now + i * 0.12);
+			osc.stop(now + i * 0.12 + 0.25);
+		});
+	}
+	defeat() {
+		if (!this.enabled || !this.ctx) return;
+		this.resume();
+		const now = this.ctx.currentTime;
+		const vol = this.getVol();
+		const notes = [400, 350, 300, 250];
+		notes.forEach((freq, i) => {
+			const osc = this.ctx.createOscillator();
+			osc.type = 'sine';
+			osc.frequency.setValueAtTime(freq, now + i * 0.15);
+			const g = this.ctx.createGain();
+			g.gain.setValueAtTime(0.07 * vol, now + i * 0.15);
+			g.gain.exponentialRampToValueAtTime(0.001 * vol, now + i * 0.15 + 0.3);
+			osc.connect(g);
+			g.connect(this.ctx.destination);
+			osc.start(now + i * 0.15);
+			osc.stop(now + i * 0.15 + 0.3);
+		});
+	}
+	seasonChange() {
+		if (!this.enabled || !this.ctx) return;
+		this.resume();
+		const now = this.ctx.currentTime;
+		const vol = this.getVol();
+		const notes = [392, 523, 659, 784];
+		notes.forEach((freq, i) => {
+			const osc = this.ctx.createOscillator();
+			osc.type = 'sine';
+			osc.frequency.setValueAtTime(freq, now + i * 0.1);
+			const g = this.ctx.createGain();
+			g.gain.setValueAtTime(0.06 * vol, now + i * 0.1);
+			g.gain.exponentialRampToValueAtTime(0.001 * vol, now + i * 0.1 + 0.2);
+			osc.connect(g);
+			g.connect(this.ctx.destination);
+			osc.start(now + i * 0.1);
+			osc.stop(now + i * 0.1 + 0.2);
+		});
+	}
+	heartBreak() {
+		if (!this.enabled || !this.ctx) return;
+		this.resume();
+		const now = this.ctx.currentTime;
+		const vol = this.getVol();
+		const osc = this.ctx.createOscillator();
+		osc.type = 'sawtooth';
+		osc.frequency.setValueAtTime(300, now);
+		osc.frequency.exponentialRampToValueAtTime(100, now + 0.4);
+		const g = this.ctx.createGain();
+		g.gain.setValueAtTime(0.15 * vol, now);
+		g.gain.exponentialRampToValueAtTime(0.001 * vol, now + 0.4);
+		osc.connect(g);
+		g.connect(this.ctx.destination);
+		osc.start(now);
+		osc.stop(now + 0.4);
+		const osc2 = this.ctx.createOscillator();
+		osc2.type = 'square';
+		osc2.frequency.setValueAtTime(800, now);
+		osc2.frequency.exponentialRampToValueAtTime(200, now + 0.3);
+		const g2 = this.ctx.createGain();
+		g2.gain.setValueAtTime(0.05 * vol, now);
+		g2.gain.exponentialRampToValueAtTime(0.001 * vol, now + 0.3);
+		osc2.connect(g2);
+		g2.connect(this.ctx.destination);
+		osc2.start(now);
+		osc2.stop(now + 0.3);
+	}
+	achieve() {
+		if (!this.enabled || !this.ctx) return;
+		this.resume();
+		const now = this.ctx.currentTime;
+		const vol = this.getVol();
+		const notes = [523, 659, 784, 1047, 784, 659];
+		notes.forEach((freq, i) => {
+			const osc = this.ctx.createOscillator();
+			osc.type = 'sine';
+			osc.frequency.setValueAtTime(freq, now + i * 0.1);
+			const g = this.ctx.createGain();
+			g.gain.setValueAtTime(0.07 * vol, now + i * 0.1);
+			g.gain.exponentialRampToValueAtTime(0.001 * vol, now + i * 0.1 + 0.2);
+			osc.connect(g);
+			g.connect(this.ctx.destination);
+			osc.start(now + i * 0.1);
+			osc.stop(now + i * 0.1 + 0.2);
+		});
+	}
+}
+const sfx = new SoundFX();
+
+// ===== 技能提示弹窗 =====
+let toastTimer = null;
+
+function showSkillToast(icon, name, desc) {
+	const el = document.getElementById('skillToast');
+	const iconEl = document.getElementById('toastIcon');
+	const nameEl = document.getElementById('toastName');
+	const descEl = document.getElementById('toastDesc');
+
+	if (toastTimer) {
+		clearTimeout(toastTimer);
+		toastTimer = null;
+		el.classList.remove('show', 'fade-out');
+	}
+
+	iconEl.textContent = icon || '⚡';
+	nameEl.textContent = name || '技能';
+	descEl.textContent = desc || '';
+
+	void el.offsetWidth;
+	el.classList.add('show');
+	el.classList.remove('fade-out');
+
+	toastTimer = setTimeout(() => {
+		el.classList.remove('show');
+		el.classList.add('fade-out');
+		toastTimer = setTimeout(() => {
+			el.classList.remove('fade-out');
+			toastTimer = null;
+		}, 400);
+	}, 1800);
+}
+
+// ===== 音量控制函数 =====
+function showVolumeControl() {
+	document.getElementById('volumeOverlay').classList.add('show');
+	document.getElementById('musicVolume').value = musicVolume * 100;
+	document.getElementById('sfxVolume').value = sfxVolume * 100;
+	document.getElementById('musicVolLabel').textContent = Math.round(musicVolume * 100) + '%';
+	document.getElementById('sfxVolLabel').textContent = Math.round(sfxVolume * 100) + '%';
+}
+function closeVolumeControl() {
+	document.getElementById('volumeOverlay').classList.remove('show');
+}
+function updateMusicVolume(val) {
+	musicVolume = val / 100;
+	document.getElementById('musicVolLabel').textContent = Math.round(musicVolume * 100) + '%';
+	if (musicGain) {
+		try { musicGain.gain.setValueAtTime(musicVolume * 0.25, musicCtx.currentTime); } catch(e) {}
+	}
+}
+function updateSfxVolume(val) {
+	sfxVolume = val / 100;
+	document.getElementById('sfxVolLabel').textContent = Math.round(sfxVolume * 100) + '%';
+}
+
+// ===== 背景音乐 =====
+let musicCtx = null, musicOscillators = [], musicGain = null, musicPlaying = false, musicTimeoutId = null;
+
+function toggleMusic() {
+	if (!musicCtx) { try { musicCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return; } }
+	if (musicCtx.state === 'suspended') { musicCtx.resume().catch(e => {}); }
+	if (musicPlaying) { stopMusic(); } else { startMusic(); }
+}
+
+function startMusic() {
+	if (musicPlaying || !musicCtx) return;
+	if (musicCtx.state === 'suspended') { musicCtx.resume().catch(e => {}); }
+	if (musicCtx.state !== 'running') { return; }
+	musicPlaying = true;
+	document.getElementById('musicIcon').textContent = '🔊';
+	const now = musicCtx.currentTime;
+	musicGain = musicCtx.createGain();
+	musicGain.gain.setValueAtTime(musicVolume * 0.25, now);
+	musicGain.connect(musicCtx.destination);
+	const chordProgression = [
+		{ notes: [523, 659, 784], bass: 262 }, { notes: [392, 494, 587], bass: 196 },
+		{ notes: [440, 554, 659], bass: 220 }, { notes: [349, 440, 523], bass: 174 },
+		{ notes: [523, 659, 784], bass: 262 }, { notes: [392, 494, 587], bass: 196 },
+		{ notes: [440, 554, 659], bass: 220 }, { notes: [349, 440, 523], bass: 174 }
+	];
+	let index = 0;
+	function playChord() {
+		if (!musicPlaying || !musicCtx || musicCtx.state !== 'running') return;
+		try {
+			const now = musicCtx.currentTime;
+			const chord = chordProgression[index % chordProgression.length];
+			const duration = 1.8;
+			chord.notes.forEach((freq, i) => {
+				const osc = musicCtx.createOscillator();
+				osc.type = i === 0 ? 'sine' : 'triangle';
+				osc.frequency.setValueAtTime(freq, now);
+				const gain = musicCtx.createGain();
+				gain.gain.setValueAtTime(i === 0 ? 0.035 : 0.022, now);
+				gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+				osc.connect(gain);
+				gain.connect(musicGain);
+				osc.start(now);
+				osc.stop(now + duration);
+				musicOscillators.push(osc);
+			});
+			const bassOsc = musicCtx.createOscillator();
+			bassOsc.type = 'sine';
+			bassOsc.frequency.setValueAtTime(chord.bass, now);
+			const bassGain = musicCtx.createGain();
+			bassGain.gain.setValueAtTime(0.025, now);
+			bassGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+			bassOsc.connect(bassGain);
+			bassGain.connect(musicGain);
+			bassOsc.start(now);
+			bassOsc.stop(now + duration);
+			musicOscillators.push(bassOsc);
+			if (index % 2 === 0) {
+				const decOsc = musicCtx.createOscillator();
+				decOsc.type = 'sine';
+				decOsc.frequency.setValueAtTime(chord.notes[0] * 1.5, now);
+				const decGain = musicCtx.createGain();
+				decGain.gain.setValueAtTime(0.015, now);
+				decGain.gain.exponentialRampToValueAtTime(0.001, now + duration * 0.5);
+				decOsc.connect(decGain);
+				decGain.connect(musicGain);
+				decOsc.start(now);
+				decOsc.stop(now + duration * 0.5);
+				musicOscillators.push(decOsc);
+			}
+			index++;
+			musicTimeoutId = setTimeout(playChord, duration * 1000 + 150);
+		} catch(e) { musicPlaying = false; }
+	}
+	setTimeout(playChord, 100);
+}
+
+function stopMusic() {
+	musicPlaying = false;
+	document.getElementById('musicIcon').textContent = '🎵';
+	if (musicTimeoutId) { clearTimeout(musicTimeoutId); musicTimeoutId = null; }
+	musicOscillators.forEach(osc => { try { if (osc && osc.stop) osc.stop(); } catch(e) {} });
+	musicOscillators = [];
+	if (musicGain) { try { musicGain.gain.setValueAtTime(0, musicCtx.currentTime); } catch(e) {} }
+}
+
+// ===== 自动激活音频 =====
+document.addEventListener('DOMContentLoaded', function() { try { musicCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} });
+document.addEventListener('click', function initMusic() {
+	if (!musicCtx) { try { musicCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
+	if (musicCtx && musicCtx.state === 'suspended') { musicCtx.resume().then(() => { if (!musicPlaying) startMusic(); }).catch(e => {}); }
+	else if (musicCtx && musicCtx.state === 'running') { if (!musicPlaying) startMusic(); }
+	document.removeEventListener('click', initMusic);
+}, { once: true });
+document.addEventListener('touchstart', function initMusicTouch() {
+	if (!musicCtx) { try { musicCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
+	if (musicCtx && musicCtx.state === 'suspended') { musicCtx.resume().then(() => { if (!musicPlaying) startMusic(); }).catch(e => {}); }
+	else if (musicCtx && musicCtx.state === 'running') { if (!musicPlaying) startMusic(); }
+	document.removeEventListener('touchstart', initMusicTouch);
+}, { once: true });
+
+// ===== 鸟类保护知识数据 =====
+const BIRD_KNOWLEDGE = {
+	endangered: [
+		{ name: '中华秋沙鸭', icon: '🦆', status: '极危', desc: '全球仅存约2000只，被称为"水中大熊猫"。' },
+		{ name: '黑脸琵鹭', icon: '🦩', status: '濒危', desc: '全球仅存约5000只，因湿地减少而面临威胁。' },
+		{ name: '勺嘴鹬', icon: '🐦', status: '极危', desc: '全球仅存约500只，是世界上最稀少的候鸟之一。' },
+		{ name: '丹顶鹤', icon: '🦢', status: '濒危', desc: '全球约3000只，东亚文化中的"仙鹤"。' },
+		{ name: '黄腹角雉', icon: '🐔', status: '易危', desc: '中国特有物种，种群数量不足5000只。' }
+	],
+	facts: [
+		{ icon: '🌾', text: '中国是候鸟迁徙的重要通道，每年有超过5000万只候鸟经过中国。' },
+		{ icon: '🏠', text: '湿地是鸟类最重要的栖息地，支撑了全球20%以上的候鸟种群。' },
+		{ icon: '⚠️', text: '全球约有1/8的鸟类物种面临灭绝威胁。' },
+		{ icon: '🌿', text: '一只燕子一个夏天可以吃掉约50万只害虫。' },
+		{ icon: '🌍', text: '鸟类是生态系统健康的重要指标。' }
+	],
+	tips: [
+		'🌼 减少草坪面积，保留野花野草，为昆虫和鸟类提供食物',
+		'💧 保持水源清洁，为鸟类提供干净的饮水',
+		'🌳 在庭院或阳台种植本土蜜源植物，吸引蝴蝶和鸟类',
+		'🚫 不捕捉、不买卖野生鸟类，拒绝食用野味',
+		'📸 观鸟时保持距离，不惊扰鸟类的正常生活',
+		'🗑️ 减少塑料使用，避免鸟类误食塑料垃圾'
+	]
+};
+
+// ===== 成就系统 =====
+const ACHIEVEMENTS = [
+	{ id: 'first_game', icon: '🐣', name: '初出茅庐', desc: '完成1场游戏', title: '新手候鸟', check: (stats) => stats.gamesPlayed >= 1 },
+	{ id: 'far_walker', icon: '🚀', name: '千里之行', desc: '单场位置达到15步', title: '远行者', check: (stats) => stats.maxPosInGame >= 15 },
+	{ id: 'energy_master', icon: '⚡', name: '能量大师', desc: '单场能量累计消耗20点', title: '能量掌控者', check: (stats) => stats.totalEnergyUsed >= 20 },
+	{ id: 'veteran', icon: '🎖️', name: '百战老兵', desc: '完成5场游戏', title: '资深迁徙者', check: (stats) => stats.gamesPlayed >= 5 },
+	{ id: 'lucky_star', icon: '🍀', name: '无敌幸运星', desc: '连续3轮天时牌全为正面', title: '天选之鸟', check: (stats) => stats.consecutivePositive >= 3 },
+	{ id: 'grand_slam', icon: '👑', name: '大满贯', desc: '单场游戏位置达到30步', title: '迁徙之王', check: (stats) => stats.maxPosInGame >= 30 }
+];
+
+let achievementData = { unlocked: [], gamesPlayed: 0, maxPosInGame: 0, totalEnergyUsed: 0, consecutivePositive: 0, maxConsecutivePositive: 0 };
+
+function loadAchievements() {
+	try { const saved = localStorage.getItem('birdAchievements'); if (saved) { const parsed = JSON.parse(saved); achievementData = { ...achievementData, ...parsed }; } } catch(e) {}
+	updateAchievementBadge();
+}
+function saveAchievements() {
+	try { localStorage.setItem('birdAchievements', JSON.stringify(achievementData)); } catch(e) {}
+	updateAchievementBadge();
+}
+function updateAchievementBadge() {
+	const badge = document.getElementById('achBadgeCount');
+	if (badge) { badge.textContent = achievementData.unlocked.length + '/' + ACHIEVEMENTS.length; }
+}
+
+function checkAchievements(gameStats) {
+	let newlyUnlocked = [];
+	if (gameStats) {
+		achievementData.gamesPlayed = (achievementData.gamesPlayed || 0) + 1;
+		if (gameStats.maxPos > achievementData.maxPosInGame) { achievementData.maxPosInGame = gameStats.maxPos; }
+		achievementData.totalEnergyUsed = (achievementData.totalEnergyUsed || 0) + (gameStats.energyUsed || 0);
+		if (gameStats.consecutivePositive > achievementData.maxConsecutivePositive) {
+			achievementData.maxConsecutivePositive = gameStats.consecutivePositive;
+		}
+	}
+	ACHIEVEMENTS.forEach(ach => {
+		if (!achievementData.unlocked.includes(ach.id)) {
+			const stats = { gamesPlayed: achievementData.gamesPlayed, maxPosInGame: achievementData.maxPosInGame, totalEnergyUsed: achievementData.totalEnergyUsed, consecutivePositive: achievementData.maxConsecutivePositive };
+			if (ach.check(stats)) { achievementData.unlocked.push(ach.id); newlyUnlocked.push(ach); }
+		}
+	});
+	saveAchievements();
+	if (newlyUnlocked.length > 0) { showNewAchievement(newlyUnlocked); }
+	return newlyUnlocked;
+}
+
+let newAchieveQueue = [];
+function showNewAchievement(achieves) { newAchieveQueue = [...achieves]; showNextNewAchieve(); }
+function showNextNewAchieve() {
+	if (newAchieveQueue.length === 0) return;
+	const ach = newAchieveQueue.shift();
+	sfx.achieve();
+	document.getElementById('newAchIcon').textContent = ach.icon;
+	document.getElementById('newAchName').textContent = ach.name;
+	document.getElementById('newAchDesc').textContent = ach.desc;
+	document.getElementById('newAchTitle').textContent = '🏅 ' + ach.title;
+	document.getElementById('newAchieveOverlay').classList.add('show');
+	window._achQueue = newAchieveQueue;
+}
+function closeNewAchieve() {
+	document.getElementById('newAchieveOverlay').classList.remove('show');
+	if (window._achQueue && window._achQueue.length > 0) { newAchieveQueue = window._achQueue; showNextNewAchieve(); }
+	updateAchievementBadge();
+}
+
+function showAchievements() {
+	const overlay = document.getElementById('achievementOverlay');
+	const list = document.getElementById('achievementList');
+	list.innerHTML = '';
+	ACHIEVEMENTS.forEach(ach => {
+		const unlocked = achievementData.unlocked.includes(ach.id);
+		const div = document.createElement('div');
+		div.className = 'achievement-item ' + (unlocked ? 'unlocked' : 'locked');
+		div.innerHTML = `
+			<div class="ach-icon">${ach.icon}</div>
+			<div class="ach-info">
+				<div class="ach-name">${ach.name}</div>
+				<div class="ach-desc">${ach.desc}</div>
+				<div class="ach-title">${unlocked ? '🏅 ' + ach.title : '🔒 未解锁'}</div>
+			</div>
+			<div class="ach-status">${unlocked ? '✅ 已解锁' : '🔒 锁定'}</div>
+		`;
+		list.appendChild(div);
+	});
+	overlay.classList.add('show');
+}
+function closeAchievements() { document.getElementById('achievementOverlay').classList.remove('show'); }
+
+function showKnowledge() {
+	const overlay = document.getElementById('knowledgeOverlay');
+	const content = document.getElementById('knowledgeContent');
+	let html = '';
+	html += `<div class="knowledge-section"><h3>🔴 濒危鸟类</h3>`;
+	BIRD_KNOWLEDGE.endangered.forEach(bird => {
+		const statusClass = bird.status === '极危' ? 'critical' : bird.status === '濒危' ? 'endangered' : 'vulnerable';
+		html += `<div class="knowledge-item"><div class="k-icon">${bird.icon}</div><div class="k-info"><div class="k-name">${bird.name}</div><div class="k-desc">${bird.desc}</div><span class="k-status ${statusClass}">${bird.status}</span></div></div>`;
+	});
+	html += `</div><div class="knowledge-section"><h3>📖 鸟类常识</h3>`;
+	BIRD_KNOWLEDGE.facts.forEach(fact => {
+		html += `<div class="knowledge-item" style="border-left-color: #5a9a5a;"><div class="k-icon">${fact.icon}</div><div class="k-info"><div class="k-desc">${fact.text}</div></div></div>`;
+	});
+	html += `</div><div class="knowledge-section"><h3>🌱 我们可以做什么</h3><div class="knowledge-tip">`;
+	BIRD_KNOWLEDGE.tips.forEach(tip => { html += `<div class="tip-item">• ${tip}</div>`; });
+	html += `</div></div>`;
+	content.innerHTML = html;
+	overlay.classList.add('show');
+}
+function closeKnowledge() { document.getElementById('knowledgeOverlay').classList.remove('show'); }
+
+// ===== 规则手册数据 =====
+const RULEBOOK_DATA = {
+	goal: '🐦 扮演一只候鸟，管理能量(⚡)、向前迁徙(📍)，穿越四季成功抵达越冬地。',
+	steps: [
+		'① 选地：点击湿地/森林/草地，选对理想地可获加分',
+		'② 押注：消耗1或2能量押注，押越多位置越远',
+		'③ 翻天时：点击中央卡牌，随机事件影响所有玩家',
+		'④ 技能：使用鸟牌专属技能（可选）',
+		'⑤ 结算：点击结算，计算得分进入下一轮'
+	],
+	hidden: [
+		'🎵 双击音乐按钮 → 调音量（背景音乐/音效分开调）',
+		'🦜 单击鸟牌 → 翻转查看技能详情'
+	],
+	result: '✅ 完成所有轮次且能量>0 → 胜利 | ❌ 能量归零 → 失败',
+	birds: [
+		['乌鸫', '电瓶警报/模仿'],
+		['白头鹎', '巧对白头/白头偕老'],
+		['红嘴蓝鹊', '万物神鸟·传信/蓬山探路'],
+		['黑领椋鸟', '电音干扰/DJ打碟'],
+		['小鸊鷉', '水遁术/涡轮增鸭'],
+		['斑嘴鸭', '鸭祖宗/黄嘴传家宝'],
+		['夜鹭', '夜师傅站桩/中华企鹅'],
+		['小白鹭', '浑水摸鱼/黑嘴黄袜子'],
+		['红隼', '定点悬停/城市猎手'],
+		['红腹锦鸡', '炫耀/求偶'],
+		['翠鸟', '蓝色闪电/一口闷'],
+		['大斑啄木鸟', '工地开工/森林医生'],
+		['珠颈斑鸠', '糊弄筑巢/随缘安家'],
+		['大山雀', '白脸探路/滴滴水'],
+		['棕背伯劳', '烤串师傅/小猛禽'],
+		['白颊噪鹛', '歌剧魅影/话痨鸟'],
+		['鹊鸲', '猪屎渣/翘尾巴'],
+		['黑短脚鹎', '喵喵叫/呱唧呱唧'],
+		['喜鹊', '喜上眉梢/拆迁队'],
+		['家燕', '旧时王谢/燕子低飞']
+	]
+};
+
+function showRulebook() {
+	const overlay = document.getElementById('rulebookOverlay');
+	const content = document.getElementById('rulebookContent');
+	let html = '';
+
+	html += `<div class="rb-section"><h3>🎯 游戏目标</h3><p>${RULEBOOK_DATA.goal}</p></div>`;
+
+	html += `<div class="rb-section"><h3>🔄 每轮5步</h3><ul>`;
+	RULEBOOK_DATA.steps.forEach(s => { html += `<li>${s}</li>`; });
+	html += `</ul></div>`;
+
+	html += `<div class="rb-section"><h3>🕹️ 隐藏操作</h3><ul>`;
+	RULEBOOK_DATA.hidden.forEach(h => { html += `<li>${h}</li>`; });
+	html += `</ul></div>`;
+
+	html += `<div class="rb-section"><h3>🏁 胜负判定</h3><p>${RULEBOOK_DATA.result}</p></div>`;
+
+	html += `<div class="rb-section"><h3>🐦 20种鸟牌技能</h3><div class="rb-grid">`;
+	RULEBOOK_DATA.birds.forEach(b => {
+		html += `<div class="rb-item"><span class="rb-name">${b[0]}</span><span class="rb-desc">${b[1]}</span></div>`;
+	});
+	html += `</div></div>`;
+
+	html += `<div class="rb-tip">💡 提示：双击音乐按钮可分别调节背景音乐和音效音量</div>`;
+
+	content.innerHTML = html;
+	overlay.classList.add('show');
+}
+
+function closeRulebook() {
+	document.getElementById('rulebookOverlay').classList.remove('show');
+}
+// ===== 天时牌数据（春季8正4负，夏季7正5负，秋季7正5负，冬季6正6负） =====
+const WEATHER_BY_SEASON = {
+	0: [ // 春季 - 8正4负
+		{ name:'🌱 春风又绿江南岸', effect:'位置最前的玩家+1能量', type:'positive' },
+		{ name:'🌸 春色满园关不住', effect:'押注2的玩家+1分', type:'positive' },
+		{ name:'🌿 春蚕到死丝方尽', effect:'能量最低的玩家+2能量', type:'positive' },
+		{ name:'🌿 好雨知时节', effect:'所有玩家+1能量', type:'positive' },
+		{ name:'🚀 后发先至', effect:'位置最后的玩家+1能量+1分', type:'positive' },
+		{ name:'🌧️ 清明时节雨纷纷', effect:'押注2的玩家+1能量', type:'positive' },
+		{ name:'🐦 谁家新燕啄春泥', effect:'林鸟玩家+1能量', type:'positive' },
+		{ name:'💧 春江水暖鸭先知', effect:'水鸟玩家+1能量', type:'positive' },
+		{ name:'🌧️ 夜来风雨声', effect:'押注1的玩家-1能量', type:'negative' },
+		{ name:'🍂 无可奈何花落去', effect:'押注1的玩家-1分', type:'negative' },
+		{ name:'🌧️ 春寒料峭', effect:'位置最后的玩家-1能量', type:'negative' },
+		{ name:'🌧️ 春潮带雨晚来急', effect:'押注1的玩家-1能量', type:'negative' }
+	],
+	1: [ // 夏季 - 7正5负
+		{ name:'🌿 接天莲叶无穷碧', effect:'位置最前的玩家+1分', type:'positive' },
+		{ name:'🌾 稻花香里说丰年', effect:'押注2的玩家+1分+1能量', type:'positive' },
+		{ name:'🌳 绿树阴浓夏日长', effect:'押注2的玩家+2能量', type:'positive' },
+		{ name:'🌿 小荷才露尖尖角', effect:'能量最低的玩家+1能量', type:'positive' },
+		{ name:'🚀 后来居上', effect:'位置最后的玩家+1分+1能量', type:'positive' },
+		{ name:'⛈️ 雷声千嶂落', effect:'押注2的玩家+1能量', type:'positive' },
+		{ name:'🦗 蝉噪林逾静', effect:'林鸟玩家+1能量', type:'positive' },
+		{ name:'☀️ 赤日炎炎似火烧', effect:'押注1的玩家-1能量', type:'negative' },
+		{ name:'🌧️ 东边日出西边雨', effect:'押注1的玩家-1分', type:'negative' },
+		{ name:'☀️ 足蒸暑土气', effect:'押注1的玩家-1能量', type:'negative' },
+		{ name:'🌙 月落乌啼霜满天', effect:'位置最前的玩家-1能量', type:'negative' },
+		{ name:'🌊 飞流直下三千尺', effect:'水鸟玩家-1能量', type:'negative' }
+	],
+	2: [ // 秋季 - 7正5负
+		{ name:'🌅 秋水共长天一色', effect:'位置最前的玩家+1分', type:'positive' },
+		{ name:'🌙 海上生明月', effect:'押注2的玩家+1能量', type:'positive' },
+		{ name:'🌼 采菊东篱下', effect:'押注2的玩家+2能量', type:'positive' },
+		{ name:'🍂 五谷丰登', effect:'押注2的玩家+1分+1能量', type:'positive' },
+		{ name:'🚀 奋起直追', effect:'位置最后的玩家+2能量', type:'positive' },
+		{ name:'🕊️ 长风万里送秋雁', effect:'林鸟玩家+1分+1能量', type:'positive' },
+		{ name:'🌙 举头望明月', effect:'水鸟玩家+1能量', type:'positive' },
+		{ name:'🍂 秋风萧瑟天气凉', effect:'押注1的玩家-1能量', type:'negative' },
+		{ name:'🍂 无边落木萧萧下', effect:'押注1的玩家-1分', type:'negative' },
+		{ name:'🌿 枯藤老树昏鸦', effect:'林鸟玩家-1能量', type:'negative' },
+		{ name:'🌿 古道西风瘦马', effect:'位置最后的玩家-1能量', type:'negative' },
+		{ name:'🍂 霜叶红于二月花', effect:'押注1的玩家-1能量', type:'negative' }
+	],
+	3: [ // 冬季 - 6正6负
+		{ name:'❄️ 忽如一夜春风来', effect:'押注2的玩家+1能量+1分', type:'positive' },
+		{ name:'⚔️ 大雪满弓刀', effect:'押注2的玩家+2能量', type:'positive' },
+		{ name:'🎣 孤舟蓑笠翁', effect:'位置最后的玩家+2分', type:'positive' },
+		{ name:'🌺 墙角数枝梅', effect:'能量最低的玩家+3能量', type:'positive' },
+		{ name:'❄️ 围炉取暖', effect:'押注2的玩家+1能量+1分', type:'positive' },
+		{ name:'🐦 寒鸦栖林', effect:'林鸟玩家+1能量+1分', type:'positive' },
+		{ name:'🌨️ 北风卷地白草折', effect:'押注1的玩家-1能量', type:'negative' },
+		{ name:'🧊 欲渡黄河冰塞川', effect:'押注1的玩家-1分', type:'negative' },
+		{ name:'🌨️ 千山鸟飞绝', effect:'水鸟玩家-1能量', type:'negative' },
+		{ name:'🌨️ 风一更，雪一更', effect:'位置最前的玩家-1能量', type:'negative' },
+		{ name:'❄️ 大雪压青松', effect:'押注1的玩家-1能量', type:'negative' },
+		{ name:'🌨️ 燕山雪花大如席', effect:'位置最后的玩家-1能量', type:'negative' }
+	]
+};
+
+const HABITATS = ['wetland','forest','grassland'];
+const HABITAT_NAMES = { wetland:'湿地', forest:'森林', grassland:'草地' };
+const SEASONS = [
+	{ name:'春', icon:'🌱', bg:'spring', sub:['孟春','仲春','季春'], poem:'万物复苏' },
+	{ name:'夏', icon:'☀️', bg:'summer', sub:['孟夏','仲夏','季夏'], poem:'生机勃勃' },
+	{ name:'秋', icon:'🍂', bg:'autumn', sub:['孟秋','仲秋','季秋'], poem:'硕果累累' },
+	{ name:'冬', icon:'❄️', bg:'winter', sub:['孟冬','仲冬','季冬'], poem:'银装素裹' }
+];
+
+// ===== 鸟牌数据（20种，含 type 和 migrate 字段） =====
+const DISABLED_FOR_AI = ['红嘴蓝鹊', '白头鹎', '黑领椋鸟'];
+const ALL_BIRD_DATA = [
+	{ name:'乌鸫', type:'林', migrate:'留', ideal:['森林'], fixed:'森林+1分', skill1: { name:'电瓶警报', desc:'使一名玩家本回合-1分', cost:'无' }, skill2: { name:'模仿', desc:'复制任一玩家技能', cost:'无' } },
+	{ name:'白头鹎', type:'林', migrate:'留', ideal:['草地', '森林'], fixed:'草地/森林+1分', skill1: { name:'巧对白头', desc:'将天时牌负面效果转移给押注最多的玩家', cost:'无' }, skill2: { name:'白头偕老', desc:'选择一名玩家，双方本回合均不受负面效果影响', cost:'无' } },
+	{ name:'红嘴蓝鹊', type:'林', migrate:'留', ideal:['森林', '草地'], fixed:'森林/草地+1分', skill1: { name:'万物神鸟·传信', desc:'查看本轮天时牌内容，可重新选择栖息地', cost:'无' }, skill2: { name:'蓬山探路', desc:'查看任意一名玩家的栖息地选择', cost:'无' } },
+	{ name:'黑领椋鸟', type:'林', migrate:'留', ideal:['草地', '湿地'], fixed:'草地/湿地+1分', skill1: { name:'电音干扰', desc:'指定一名玩家-1能量', cost:'无' }, skill2: { name:'DJ打碟', desc:'本回合+1能量', cost:'无' } },
+	{ name:'小鸊鷉', type:'水', migrate:'留', ideal:['湿地'], fixed:'湿地+1分', skill1: { name:'水遁术', desc:'潜水躲避本回合所有负面效果', cost:'无' }, skill2: { name:'涡轮增鸭', desc:'消耗1能量，额外前进2步', cost:'消耗1能量' } },
+	{ name:'斑嘴鸭', type:'水', migrate:'候', ideal:['湿地', '草地'], fixed:'湿地/草地+1分', skill1: { name:'鸭祖宗', desc:'选择一个栖息地，下回合选该地额外+1分', cost:'无' }, skill2: { name:'黄嘴传家宝', desc:'免疫一次指向性负面效果', cost:'无' } },
+	{ name:'夜鹭', type:'水', migrate:'留', ideal:['湿地', '森林'], fixed:'湿地/森林+1分', skill1: { name:'夜师傅站桩', desc:'本回合位置不前进，获得+2能量', cost:'无' }, skill2: { name:'中华企鹅', desc:'免疫本回合所有负面效果', cost:'无' } },
+	{ name:'小白鹭', type:'水', migrate:'留', ideal:['湿地'], fixed:'湿地+1分', skill1: { name:'浑水摸鱼', desc:'本回合不移动，获得+2能量', cost:'无' }, skill2: { name:'黑嘴黄袜子', desc:'选湿地时额外+1分', cost:'无' } },
+	{ name:'红隼', type:'林', migrate:'留', ideal:['草地', '湿地'], fixed:'草地/湿地+1分', skill1: { name:'定点悬停', desc:'本回合不移动，获得+2能量', cost:'无' }, skill2: { name:'城市猎手', desc:'偷取一名玩家1能量', cost:'无' } },
+	{ name:'红腹锦鸡', type:'林', migrate:'留', ideal:['草地', '森林'], fixed:'草地/森林+1分', skill1: { name:'炫耀', desc:'本回合额外+1分', cost:'无' }, skill2: { name:'求偶', desc:'春季时额外+2分', cost:'需春季' } },
+	{ name:'翠鸟', type:'水', migrate:'留', ideal:['湿地', '森林'], fixed:'湿地/森林+1分', skill1: { name:'蓝色闪电', desc:'本回合必定获得+1分', cost:'无' }, skill2: { name:'一口闷', desc:'消耗1能量，前进1步+1分', cost:'消耗1能量' } },
+	{ name:'大斑啄木鸟', type:'林', migrate:'留', ideal:['森林', '草地'], fixed:'森林/草地+1分', skill1: { name:'工地开工', desc:'前进2步，消耗1能量', cost:'消耗1能量' }, skill2: { name:'森林医生', desc:'给能量最低的玩家回复1能量', cost:'无' } },
+	{ name:'珠颈斑鸠', type:'林', migrate:'留', ideal:['草地', '森林'], fixed:'草地/森林+1分', skill1: { name:'糊弄筑巢', desc:'本回合不消耗能量，前进1步', cost:'无' }, skill2: { name:'随缘安家', desc:'选择一栖息地，下回合选该地+1分', cost:'无' } },
+	{ name:'大山雀', type:'林', migrate:'留', ideal:['森林'], fixed:'森林+1分', skill1: { name:'白脸探路', desc:'查看一名玩家的栖息地选择', cost:'无' }, skill2: { name:'滴滴水', desc:'消耗1能量，获得2能量', cost:'消耗1能量' } },
+	{ name:'棕背伯劳', type:'林', migrate:'留', ideal:['草地'], fixed:'草地+1分', skill1: { name:'烤串师傅', desc:'偷取一名玩家1能量并储存', cost:'无' }, skill2: { name:'小猛禽', desc:'本回合额外+1分', cost:'无' } },
+	{ name:'白颊噪鹛', type:'林', migrate:'留', ideal:['森林', '草地'], fixed:'森林/草地+1分', skill1: { name:'歌剧魅影', desc:'免疫本回合所有负面效果', cost:'无' }, skill2: { name:'话痨鸟', desc:'消耗1能量，使一名玩家本回合-1分', cost:'消耗1能量' } },
+	{ name:'鹊鸲', type:'林', migrate:'留', ideal:['森林', '草地'], fixed:'森林/草地+1分', skill1: { name:'猪屎渣', desc:'消耗1能量，获得2能量', cost:'消耗1能量' }, skill2: { name:'翘尾巴', desc:'免疫本回合所有负面效果', cost:'无' } },
+	{ name:'黑短脚鹎', type:'林', migrate:'留', ideal:['森林'], fixed:'森林+1分', skill1: { name:'喵喵叫', desc:'使一名玩家本回合-1分', cost:'无' }, skill2: { name:'呱唧呱唧', desc:'消耗1能量，获得2能量', cost:'消耗1能量' } },
+	{ name:'喜鹊', type:'林', migrate:'留', ideal:['草地', '森林'], fixed:'草地/森林+1分', skill1: { name:'喜上眉梢', desc:'本回合额外+1分', cost:'无' }, skill2: { name:'拆迁队', desc:'偷取一名玩家1能量', cost:'无' } },
+	{ name:'家燕', type:'水', migrate:'候', ideal:['湿地', '草地'], fixed:'湿地/草地+1分', skill1: { name:'旧时王谢', desc:'查看一名玩家的栖息地选择', cost:'无' }, skill2: { name:'燕子低飞', desc:'免疫本回合所有负面效果', cost:'无' } }
+];
+const BIRD_DATA = ALL_BIRD_DATA.filter(bird => !DISABLED_FOR_AI.includes(bird.name));
+
+let state = {}, playerCount = 2, totalHumanPlayers = 1, weatherFlipped = false, currentWeather = null;
+let birdFlipState = {}, gameResultShown = false, isProcessing = false, currentYear = 1, gameStarted = false;
+let birdFlipTimers = {}, selectedBirds = [], gameVersion = 'quick', totalRounds = 4, defeatShown = false;
+let isEavesdropPhase = false;
+let gameStats = { maxPos: 0, energyUsed: 0, consecutivePositive: 0, positiveStreak: 0 };
+
+function shuffle(arr) { for(let i=arr.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];} return arr; }
+console.log('🐦 玩家可选鸟牌:', ALL_BIRD_DATA.length, '种');
+console.log('🤖 AI可用鸟牌:', BIRD_DATA.length, '种');
+function showDefeatScreen(reason) {
+	if (defeatShown) return;
+	defeatShown = true;
+	state.gameOver = true;
+	stopParticles();
+	sfx.heartBreak();
+	const overlay = document.getElementById('defeatOverlay');
+	const detail = document.getElementById('defeatDetail');
+	const icon = document.querySelector('.defeat-icon');
+	const title = document.querySelector('.defeat-title');
+	const sub = document.querySelector('.defeat-sub');
+	if (reason && reason.includes('退出')) {
+		icon.textContent = '🚪'; title.textContent = '❄️ 中途退出'; sub.textContent = '你的越冬之旅中断了...'; detail.textContent = reason;
+	} else if (reason && reason.includes('所有玩家')) {
+		icon.textContent = '💀'; title.textContent = '❄️ 全军覆没'; sub.textContent = '所有候鸟都倒在了路上...'; detail.textContent = reason;
+	} else {
+		icon.textContent = '💔'; title.textContent = '❄️ 越冬失败'; sub.textContent = '你在寒冬中倒下了...'; detail.textContent = reason || '能量耗尽，未能抵达越冬地';
+	}
+	const btn = document.querySelector('.defeat-box .btn-restart');
+	if (btn) { btn.textContent = '🔄 重新开始'; btn.onclick = function() { finishGameAndCheckAchievements(); restartFromDefeat(); }; }
+	overlay.classList.add('show');
+	document.querySelectorAll('.btn-group button').forEach(b => b.disabled = true);
+	finishGameAndCheckAchievements();
+}
+
+function showQuitDefeatScreen(reason) {
+	if (defeatShown) return;
+	defeatShown = true;
+	state.gameOver = true;
+	stopParticles();
+	sfx.heartBreak();
+	const overlay = document.getElementById('defeatOverlay');
+	const detail = document.getElementById('defeatDetail');
+	const icon = document.querySelector('.defeat-icon');
+	const title = document.querySelector('.defeat-title');
+	const sub = document.querySelector('.defeat-sub');
+	icon.textContent = '🚪'; title.textContent = '❄️ 中途退出'; sub.textContent = '你的越冬之旅中断了...'; detail.textContent = reason || '你中途退出了游戏';
+	const btn = document.querySelector('.defeat-box .btn-restart');
+	btn.textContent = '🔄 回到主页';
+	btn.onclick = function() {
+		defeatShown = false;
+		document.getElementById('defeatOverlay').classList.remove('show');
+		document.getElementById('app').style.display = 'none';
+		document.getElementById('startOverlay').classList.remove('hidden');
+		document.body.className = 'home';
+		state = {}; gameStarted = false; currentYear = 1; selectedBirds = []; birdFlipState = {};
+		weatherFlipped = false; currentWeather = null; gameResultShown = false; isProcessing = false;
+		gameStats = { maxPos: 0, energyUsed: 0, consecutivePositive: 0, positiveStreak: 0 };
+		document.querySelectorAll('.btn-group button').forEach(b => b.disabled = false);
+		const back = document.getElementById('weatherBack');
+		const front = document.getElementById('weatherFront');
+		back.style.display = 'flex'; front.style.display = 'none'; front.innerHTML = '<div class="big-text">🌤️ 天时</div>';
+		document.getElementById('weatherCard').classList.remove('show-front');
+		updateAchievementBadge();
+		btn.textContent = '🔄 重新开始'; btn.onclick = function() { restartFromDefeat(); };
+	};
+	overlay.classList.add('show');
+	document.querySelectorAll('.btn-group button').forEach(b => b.disabled = true);
+	finishGameAndCheckAchievements();
+}
+
+function restartFromDefeat() {
+	defeatShown = false;
+	document.getElementById('defeatOverlay').classList.remove('show');
+	document.getElementById('app').style.display = 'none';
+	document.getElementById('startOverlay').classList.remove('hidden');
+	document.body.className = 'home';
+	state = {}; gameStarted = false; currentYear = 1; selectedBirds = []; birdFlipState = {};
+	weatherFlipped = false; currentWeather = null; gameResultShown = false; isProcessing = false;
+	gameStats = { maxPos: 0, energyUsed: 0, consecutivePositive: 0, positiveStreak: 0 };
+	document.getElementById('resultOverlay').classList.remove('show');
+	document.querySelectorAll('.btn-group button').forEach(b => b.disabled = false);
+	const back = document.getElementById('weatherBack');
+	const front = document.getElementById('weatherFront');
+	back.style.display = 'flex'; front.style.display = 'none'; front.innerHTML = '<div class="big-text">🌤️ 天时</div>';
+	document.getElementById('weatherCard').classList.remove('show-front');
+	log('🔄 已回到开始界面');
+	updateAchievementBadge();
+	const btn = document.querySelector('.defeat-box .btn-restart');
+	if (btn) { btn.textContent = '🔄 重新开始'; btn.onclick = function() { restartFromDefeat(); }; }
+}
+
+function finishGameAndCheckAchievements() {
+	const stats = { maxPos: gameStats.maxPos || 0, energyUsed: gameStats.energyUsed || 0, consecutivePositive: gameStats.consecutivePositive || 0 };
+	checkAchievements(stats);
+	gameStats = { maxPos: 0, energyUsed: 0, consecutivePositive: 0, positiveStreak: 0 };
+}
+
+function startParticles(seasonIdx) {
+	stopParticles();
+	const container = document.getElementById('particles');
+	container.innerHTML = '';
+	const count = 20;
+	const colors = { 0: 'rgba(255,150,180,0.2)', 1: 'rgba(255,215,0,0.15)', 2: 'rgba(200,100,40,0.2)', 3: 'rgba(255,255,255,0.15)' };
+	const sizes = { 0: '5px', 1: '7px', 2: '5px', 3: '4px' };
+	const classes = ['spring','summer','autumn','winter'];
+	for (let i = 0; i < count; i++) {
+		const el = document.createElement('div');
+		el.className = 'particle ' + classes[seasonIdx];
+		el.style.left = Math.random() * 100 + '%';
+		el.style.top = Math.random() * 100 + '%';
+		el.style.animationDuration = (6 + Math.random() * 5) + 's';
+		el.style.animationDelay = (Math.random() * 6) + 's';
+		el.style.width = sizes[seasonIdx];
+		el.style.height = sizes[seasonIdx];
+		el.style.background = colors[seasonIdx];
+		container.appendChild(el);
+	}
+}
+function stopParticles() { const container = document.getElementById('particles'); if (container) container.innerHTML = ''; }
+
+function showSeasonTransition(seasonIdx) {
+	return new Promise((resolve) => {
+		const s = SEASONS[seasonIdx];
+		const el = document.getElementById('seasonTransition');
+		const icon = document.getElementById('transIcon');
+		const title = document.getElementById('transTitle');
+		const poem = document.getElementById('transPoem');
+		icon.textContent = s.icon;
+		title.textContent = s.name + '季';
+		poem.textContent = s.poem;
+		el.className = 'season-transition show ' + s.bg + '-bg';
+		sfx.seasonChange();
+		setTimeout(() => { el.className = 'season-transition'; resolve(); }, 2800);
+	});
+}
+
+function toggleBirdCard(playerIdx) {
+	const key = 'bird_' + playerIdx;
+	if (birdFlipTimers[key]) { clearTimeout(birdFlipTimers[key]); birdFlipTimers[key] = null; }
+	birdFlipState[key] = !birdFlipState[key];
+	const container = document.getElementById('playerList');
+	const cards = container.querySelectorAll('.bird-card-flip');
+	if (cards[playerIdx]) {
+		const inner = cards[playerIdx].querySelector('.bird-flip-inner');
+		if (inner) {
+			if (birdFlipState[key]) inner.classList.add('flipped');
+			else inner.classList.remove('flipped');
+		}
+	}
+	if (birdFlipState[key]) {
+		birdFlipTimers[key] = setTimeout(() => {
+			birdFlipState[key] = false;
+			const container2 = document.getElementById('playerList');
+			const cards2 = container2.querySelectorAll('.bird-card-flip');
+			if (cards2[playerIdx]) {
+				const inner2 = cards2[playerIdx].querySelector('.bird-flip-inner');
+				if (inner2) inner2.classList.remove('flipped');
+			}
+			birdFlipTimers[key] = null;
+		}, 2000);
+	}
+}
+
+function startGame() {
+	let ver = prompt('选择版本:\n1 = 快速版（春夏秋冬各一轮，共4轮）\n2 = 完整版（四季分孟仲季，共12轮）\n输入数字 (1-2):', '1');
+	if (ver === null) { return; }
+	let verNum = parseInt(ver);
+	if (isNaN(verNum) || verNum < 1 || verNum > 2) verNum = 1;
+	gameVersion = verNum === 1 ? 'quick' : 'full';
+	totalRounds = verNum === 1 ? 4 : 12;
+
+	let mode = prompt('选择模式:\n1 = 真人 vs 1个AI\n2 = 真人 vs 2个AI\n3 = 2个真人 vs 1个AI\n输入数字 (1-3):', '1');
+	if (mode === null) { return; }
+	let modeNum = parseInt(mode);
+	if (isNaN(modeNum) || modeNum < 1 || modeNum > 3) modeNum = 1;
+	let totalPlayers, humanCount;
+	if (modeNum === 1) { totalPlayers = 2; humanCount = 1; }
+	else if (modeNum === 2) { totalPlayers = 3; humanCount = 1; }
+	else if (modeNum === 3) { totalPlayers = 3; humanCount = 2; }
+
+	let wantCustom = prompt('是否要自由选角？（输入 1=随机分配，2=自选角色）:', '1');
+	if (wantCustom === null) { return; }
+	let wantCustomNum = parseInt(wantCustom);
+	if (isNaN(wantCustomNum) || wantCustomNum < 1 || wantCustomNum > 2) wantCustomNum = 1;
+	let assignModeNum = wantCustomNum === 2 ? 2 : 1;
+
+	gameStats = { maxPos: 0, energyUsed: 0, consecutivePositive: 0, positiveStreak: 0 };
+	selectedBirds = [];
+	if (assignModeNum === 2) {
+		let birdList = '';
+		for (let i = 0; i < ALL_BIRD_DATA.length; i++) {
+			const b = ALL_BIRD_DATA[i];
+			birdList += `${i+1}. ${b.name}（${b.type} · ${b.migrate}，理想地: ${b.ideal.join('/')}）\n   ①${b.skill1.name}：${b.skill1.desc}（${b.skill1.cost}）\n   ②${b.skill2.name}：${b.skill2.desc}（${b.skill2.cost}）\n\n`;
+		}
+		for (let p = 0; p < humanCount; p++) {
+			let available = ALL_BIRD_DATA.filter((b, idx) => !selectedBirds.includes(idx));
+			let availList = '';
+			for (let i = 0; i < available.length; i++) {
+				const b = available[i];
+				const origIdx = ALL_BIRD_DATA.indexOf(b);
+				availList += `${origIdx+1}. ${b.name}（${b.type} · ${b.migrate}，${b.ideal.join('/')}）\n`;
+			}
+			let choice = prompt(`玩家${p+1} 请选择你的鸟牌（输入编号）：\n${availList}`, '');
+			if (choice === null) { return; }
+			let choiceNum = parseInt(choice);
+			let valid = false;
+			let targetIdx = -1;
+			for (let i = 0; i < ALL_BIRD_DATA.length; i++) {
+				if (!selectedBirds.includes(i) && (i+1) === choiceNum) { valid = true; targetIdx = i; break; }
+			}
+			if (!valid) {
+				let available2 = ALL_BIRD_DATA.filter((b, idx) => !selectedBirds.includes(idx));
+				let randIdx = Math.floor(Math.random() * available2.length);
+				targetIdx = randIdx;
+				log(`⚠️ 输入无效，玩家${p+1}随机分配为 ${ALL_BIRD_DATA[targetIdx].name}`);
+			}
+			selectedBirds.push(targetIdx);
+			log(`🧑 玩家${p+1} 选择 ${ALL_BIRD_DATA[targetIdx].name}`);
+		}
+	}
+	sfx.resume();
+	document.getElementById('startOverlay').classList.add('hidden');
+	document.getElementById('app').style.display = 'block';
+	document.body.className = 'spring';
+	gameStarted = true;
+	defeatShown = false;
+	gameResultShown = false;
+	isEavesdropPhase = false;
+	showSeasonTransition(0).then(() => { initGame(totalPlayers, humanCount, assignModeNum); });
+}
+
+function aiChooseHabitat(aiIdx) {
+	let counts = { wetland:0, forest:0, grass:0 };
+	state.players.forEach(p => { if(p.alive && p.choice) counts[p.choice]++; });
+	if(Math.random() < 0.3) return HABITATS[Math.floor(Math.random() * 3)];
+	let minCount = Math.min(counts.wetland, counts.forest, counts.grass);
+	let candidates = [];
+	for(let h of HABITATS) if(counts[h] === minCount) candidates.push(h);
+	return candidates[Math.floor(Math.random() * candidates.length)];
+}
+
+function aiBet(aiIdx) {
+	let p = state.players[aiIdx];
+	if(!p.alive || p.hasBet) return false;
+	if(p.energy < 1) return false;
+	let amount = (p.energy >= 2 && Math.random() < 0.5) ? 2 : 1;
+	if (amount > p.energy) amount = p.energy;
+	p.energy -= amount;
+	p.hasBet = true;
+	p.betValue = amount;
+	state.bet[aiIdx] = true;
+	state.betAmount[aiIdx] = amount;
+	gameStats.energyUsed = (gameStats.energyUsed || 0) + amount;
+	p.pos += amount;
+	log(`🤖 ${p.name} 押注 ${amount} 能量，位置 +${amount}（当前📍${p.pos}）`);
+	return true;
+}
+
+function initGame(totalPlayers, humanCount, assignMode) {
+	totalHumanPlayers = Math.min(3, Math.max(1, humanCount || 1));
+	playerCount = Math.min(3, Math.max(1, totalPlayers || 2));
+	let birds = shuffle([...BIRD_DATA]);
+	let usedIndices = [];
+	if (assignMode === 2 && selectedBirds.length > 0) { usedIndices = [...selectedBirds]; }
+	state = {
+		players: [], round: 1, subRound: 0, seasonIndex: 0, phase: 'pick',
+		bet: [], betAmount: [], skillUsed: [], gameOver: false, winner: null,
+		habitats: { wetland:[], forest:[], grass:[] }, choicesRevealed: false,
+		eavesdropTriggered: false, lastChoice: {}
+	};
+	birdFlipState = {};
+	gameResultShown = false;
+	weatherFlipped = false;
+	currentWeather = null;
+	isProcessing = false;
+	defeatShown = false;
+	isEavesdropPhase = false;
+	document.getElementById('resultOverlay').classList.remove('show');
+	document.getElementById('defeatOverlay').classList.remove('show');
+	let birdIdx = 0;
+	for(let i=0; i<playerCount; i++) {
+		let isHuman = i < totalHumanPlayers;
+		let bird;
+		if (assignMode === 2 && i < usedIndices.length) {
+			bird = ALL_BIRD_DATA[usedIndices[i]];
+		} else {
+			let found = false; let attempts = 0;
+			while (!found && attempts < 100) {
+				attempts++;
+				let candidate = birds[birdIdx % birds.length];
+				let candidateIdx = BIRD_DATA.indexOf(candidate);
+				if (!usedIndices.includes(candidateIdx) && candidateIdx !== -1) {
+					bird = candidate; usedIndices.push(candidateIdx); found = true;
+				}
+				birdIdx++;
+			}
+			if (!found) {
+				for (let j = 0; j < BIRD_DATA.length; j++) {
+					if (!usedIndices.includes(j)) { bird = BIRD_DATA[j]; usedIndices.push(j); break; }
+				}
+			}
+		}
+		state.players.push({
+			id: i, name: (isHuman ? '🧑' : '🤖') + '玩家' + (i+1),
+			energy: 3, pos: 0, alive: true,
+			birdName: bird.name, type: bird.type, migrate: bird.migrate,
+			ideal: bird.ideal, fixed: bird.fixed,
+			skill1: bird.skill1, skill2: bird.skill2,
+			skillChoice: 0, skillChosen: false,
+			choice: null, originalChoice: null,
+			scoreThisRound: 0, hasBet: false, hasSkill: false, betValue: 0,
+			isHuman: isHuman, prevChoice: null,
+			immune: false
+		});
+		state.bet.push(false); state.betAmount.push(0); state.skillUsed.push(false);
+		birdFlipState['bird_' + i] = false;
+		state.lastChoice[i] = null;
+	}
+	state.phase = 'pick';
+	const back = document.getElementById('weatherBack');
+	const front = document.getElementById('weatherFront');
+	back.style.display = 'flex';
+	front.style.display = 'none';
+	front.innerHTML = '<div class="big-text">🌤️ 天时</div>';
+	document.getElementById('weatherCard').classList.remove('show-front');
+	document.getElementById('weatherCard').onclick = function() { flipWeatherCard(); };
+	state.seasonIndex = 0;
+	const s = SEASONS[0];
+	document.body.className = s.bg;
+	document.getElementById('seasonIcon').textContent = s.icon;
+	document.getElementById('seasonName').textContent = s.name;
+	if (gameVersion === 'quick') {
+		document.getElementById('seasonBadge').textContent = `${s.icon} ${s.name}季 · ${s.poem}`;
+	} else {
+		document.getElementById('seasonBadge').textContent = `${s.icon} ${s.sub[0]} · ${s.name}季`;
+	}
+	startParticles(0);
+	let modeStr = totalHumanPlayers + '真人/' + (playerCount-totalHumanPlayers) + 'AI';
+	document.getElementById('modeDisplay').textContent = modeStr;
+	document.getElementById('yearDisplay').textContent = '第' + currentYear + '年';
+	let totalRoundsText = gameVersion === 'quick' ? 4 : 12;
+	document.getElementById('roundDisplay').textContent = '第1/' + totalRoundsText + '轮';
+	document.getElementById('log').innerHTML = '🐣 选地 → 押注 → 翻天时 → 选技能 → 结算';
+	render();
+}
+
+function applySeason(idx) {
+	state.seasonIndex = idx % 4;
+	state.subRound = 0;
+	const s = SEASONS[state.seasonIndex];
+	document.body.className = s.bg;
+	document.getElementById('seasonIcon').textContent = s.icon;
+	document.getElementById('seasonName').textContent = s.name;
+	if (gameVersion === 'quick') {
+		document.getElementById('seasonBadge').textContent = `${s.icon} ${s.name}季 · ${s.poem}`;
+	} else {
+		document.getElementById('seasonBadge').textContent = `${s.icon} ${s.sub[0]} · ${s.name}季`;
+	}
+	startParticles(state.seasonIndex);
+	const flash = document.createElement('div');
+	flash.className = 'flash-overlay';
+	document.body.appendChild(flash);
+	setTimeout(() => { if (flash.parentNode) flash.remove(); }, 900);
+	weatherFlipped = false;
+	currentWeather = null;
+	const back = document.getElementById('weatherBack');
+	const front = document.getElementById('weatherFront');
+	back.style.display = 'flex';
+	front.style.display = 'none';
+	front.innerHTML = '<div class="big-text">🌤️ 天时</div>';
+	document.getElementById('weatherCard').classList.remove('show-front');
+	state.players.forEach(p => p.immune = false);
+	render();
+}
+
+function render() {
+	const list = document.getElementById('playerList');
+	list.innerHTML = '';
+	state.players.forEach((p, i) => {
+		const div = document.createElement('div');
+		let cls = 'player-card';
+		if(!p.alive) cls += ' dead';
+		if(p.hasBet) cls += ' has-bet';
+		if(p.hasSkill) cls += ' has-skill';
+		if(p.immune) cls += ' immune-badge';
+		div.className = cls;
+		const isFlipped = birdFlipState['bird_' + i] || false;
+		const skillDisplay = p.skillChosen ? (p.skillChoice === 1 ? p.skill1.name : p.skill2.name) : '❓选技能';
+		const idealStr = p.ideal.join(' / ');
+		let choiceDisplay = '';
+		if (p.choice) {
+			if (isEavesdropPhase && !state.choicesRevealed && !p.isHuman) { choiceDisplay = '❓ 已选'; }
+			else { choiceDisplay = HABITAT_NAMES[p.choice]; }
+		}
+		div.innerHTML = `
+			<div class="row1">
+				<span class="name">${p.alive ? '🦜' : '💀'} ${p.name}${p.immune ? ' 🛡️' : ''}</span>
+				${p.isHuman ? '<span class="human-tag">🧑真人</span>' : '<span class="ai-tag">🤖AI</span>'}
+				<div class="bird-card-flip" onclick="toggleBirdCard(${i})">
+					<div class="bird-flip-inner ${isFlipped ? 'flipped' : ''}">
+						<div class="bird-flip-face bird-flip-front">
+							<span class="bf-name">${p.birdName}</span>
+							<span class="bf-identity">${p.type} · ${p.migrate}</span>
+						</div>
+						<div class="bird-flip-face bird-flip-back">
+							<span class="bf-habitat">🏠 ${idealStr}</span>
+						</div>
+					</div>
+				</div>
+				<div class="stats">
+					<span>⚡${p.energy}</span>
+					<span>📍${p.pos}</span>
+					${p.choice ? `<span style="background:#b8863d;">${choiceDisplay}</span>` : ''}
+					${p.hasBet ? `<span style="background:#f5b342;">💰${p.betValue}</span>` : ''}
+					${p.hasSkill ? '<span style="background:#d44;">⚡已技能</span>' : ''}
+					${p.skillChosen ? `<span style="background:#2a6a8a;color:#fff;padding:0 5px;border-radius:30px;font-size:0.5rem;">${skillDisplay}</span>` : ''}
+				</div>
+			</div>
+			<div class="row2">
+				<span style="color:#2a6a8a;font-weight:bold;">🏠${idealStr} ${p.fixed}</span>
+				<span class="skill-tag">①${p.skill1.name}</span>
+				<span>${p.skill1.desc}</span>
+				<span class="passive-tag">②${p.skill2.name}</span>
+				<span>${p.skill2.desc}</span>
+			</div>
+		`;
+		list.appendChild(div);
+	});
+	let totalRoundsText = gameVersion === 'quick' ? 4 : 12;
+	let currentRound = (state.round - 1) * (gameVersion === 'quick' ? 1 : 3) + state.subRound + 1;
+	if (gameVersion === 'quick') { currentRound = state.round; }
+	document.getElementById('roundDisplay').textContent = '第' + currentRound + '/' + totalRoundsText + '轮';
+	const phaseMap = { pick:'🌾选地', bet:'💰押注', eavesdrop:'🕵️窃听', weather:'🃏翻天时', skill:'⚡选技能', result:'✅结算' };
+	document.getElementById('phaseDisplay').textContent = state.gameOver ? '🏁结束' : (phaseMap[state.phase] || '');
+	document.getElementById('playerCount').textContent = playerCount+'人';
+	document.querySelectorAll('.habitats button').forEach(b => b.classList.remove('active'));
+	let counts = { wetland:0, forest:0, grass:0 };
+	state.players.forEach(p => { if(p.alive && p.choice) counts[p.choice]++; });
+	document.querySelectorAll('.habitats button').forEach(b => {
+		let key = b.textContent.includes('湿地')?'wetland':b.textContent.includes('森林')?'forest':'grassland';
+		if(counts[key] > 0) b.classList.add('active');
+	});
+	document.querySelectorAll('.btn-group button').forEach(b => b.disabled = state.gameOver);
+	if(state.gameOver) document.getElementById('phaseDisplay').textContent = '🏁结束';
+	if (state.phase === 'weather' && !weatherFlipped && !state.gameOver) {
+		document.getElementById('weatherCard').style.cursor = 'pointer';
+		document.getElementById('weatherCard').style.opacity = '1';
+	} else {
+		document.getElementById('weatherCard').style.cursor = 'default';
+		document.getElementById('weatherCard').style.opacity = '0.7';
+	}
+}
+
+function log(msg) { const el = document.getElementById('log'); el.innerHTML += '<br>'+msg; el.scrollTop = el.scrollHeight; }
+
+function getCurrentPlayer() {
+	if(state.phase === 'pick') return state.players.find(p => p.alive && p.isHuman && !p.choice);
+	if(state.phase === 'bet') return state.players.find(p => p.alive && p.isHuman && !p.hasBet);
+	if(state.phase === 'skill') return state.players.find(p => p.alive && p.isHuman && !p.skillChosen && p.hasBet);
+	return null;
+}
+
+function checkAllChosen() {
+	let allChosen = state.players.every(p => !p.alive || p.choice);
+	if (allChosen) { state.phase = 'bet'; log('💰 押注阶段：请点击「押1」或「押2」下注'); render(); }
+}
+
+function checkAllBetAndProceed() {
+	let allBet = state.players.every(p => !p.alive || p.hasBet);
+	if (!allBet) return false;
+	state.phase = 'weather';
+	weatherFlipped = false;
+	const back = document.getElementById('weatherBack');
+	const front = document.getElementById('weatherFront');
+	back.style.display = 'flex';
+	front.style.display = 'none';
+	front.innerHTML = '<div class="big-text">🌤️ 天时</div>';
+	document.getElementById('weatherCard').classList.remove('show-front');
+	log('🃏 翻天时牌阶段：点击天时牌翻牌！');
+	render();
+	return true;
+}
+function playerPick(habitat) {
+	if(state.gameOver || state.phase !== 'pick') return;
+	let p = getCurrentPlayer();
+	if(!p) { log('请等待AI操作'); return; }
+	sfx.click();
+	p.choice = habitat;
+	p.originalChoice = habitat;
+	log(`🧑 ${p.name} 选择 ${HABITAT_NAMES[habitat]}`);
+	let aiPlayers = state.players.filter((p, i) => p.alive && i >= totalHumanPlayers && !p.choice);
+	for (let a of aiPlayers) {
+		a.choice = aiChooseHabitat(state.players.indexOf(a));
+		log(`🤖 ${a.name} 选择 ${HABITAT_NAMES[a.choice]}`);
+	}
+	render();
+	checkAllChosen();
+}
+
+function playerBet(amount) {
+	if(state.gameOver || state.phase !== 'bet') return;
+	let p = getCurrentPlayer();
+	if(!p) { log('请等待AI操作'); return; }
+	if(p.energy < amount) { log('能量不足！'); return; }
+	sfx.coin();
+	p.energy -= amount;
+	p.hasBet = true;
+	p.betValue = amount;
+	state.bet[p.id] = true;
+	state.betAmount[p.id] = amount;
+	gameStats.energyUsed = (gameStats.energyUsed || 0) + amount;
+	p.pos += amount;
+	log(`🧑 ${p.name} 押注 ${amount} 能量，位置 +${amount}（当前📍${p.pos}）`);
+	let aiPlayers = state.players.filter((p, i) => p.alive && i >= totalHumanPlayers && !p.hasBet);
+	for (let a of aiPlayers) { aiBet(state.players.indexOf(a)); }
+	render();
+	checkAllBetAndProceed();
+}
+
+function flipWeatherCard() {
+	if (state.gameOver || state.phase !== 'weather' || weatherFlipped) return;
+	sfx.flip();
+	weatherFlipped = true;
+	const seasonIdx = state.seasonIndex;
+	const cards = WEATHER_BY_SEASON[seasonIdx];
+	currentWeather = cards[Math.floor(Math.random() * cards.length)];
+	const front = document.getElementById('weatherFront');
+	const back = document.getElementById('weatherBack');
+	front.innerHTML = '';
+	const bigText = document.createElement('div');
+	bigText.className = 'big-text';
+	bigText.textContent = currentWeather.name;
+	const subText = document.createElement('div');
+	subText.className = 'sub-text';
+	subText.textContent = currentWeather.effect;
+	front.appendChild(bigText);
+	front.appendChild(subText);
+	front.className = 'card-face card-front ' + (currentWeather.type === 'positive' ? 'positive' : 'negative');
+	front.style.display = 'flex';
+	front.style.flexDirection = 'column';
+	front.style.justifyContent = 'center';
+	front.style.alignItems = 'center';
+	front.style.opacity = '1';
+	front.style.pointerEvents = 'auto';
+	document.getElementById('weatherCard').classList.add('show-front');
+	back.style.display = 'none';
+	log(`🃏 天时：${currentWeather.name}（${currentWeather.effect}）`);
+	if (currentWeather.type === 'positive') {
+		gameStats.positiveStreak = (gameStats.positiveStreak || 0) + 1;
+		if (gameStats.positiveStreak > gameStats.consecutivePositive) {
+			gameStats.consecutivePositive = gameStats.positiveStreak;
+		}
+	} else {
+		gameStats.positiveStreak = 0;
+	}
+	applyWeatherEffect();
+	if (!state.gameOver) {
+		state.phase = 'skill';
+		log('⚡ 技能阶段：选择技能或点击「结算」跳过');
+		render();
+	}
+}
+
+function applyWeatherEffect() {
+	if (!currentWeather) return;
+	const effect = currentWeather.effect;
+	const players = state.players.filter(p => p.alive);
+	if (effect.includes('所有玩家+1能量')) { players.forEach(p => p.energy += 1); }
+	else if (effect.includes('所有玩家-1能量')) { players.filter(p => !p.immune).forEach(p => p.energy = Math.max(0, p.energy - 1)); }
+	else if (effect.includes('所有玩家+1分')) { players.forEach(p => p.scoreThisRound = (p.scoreThisRound || 0) + 1); }
+	else if (effect.includes('林鸟玩家+1能量')) { players.filter(p => p.type === '林').forEach(p => p.energy += 1); }
+	else if (effect.includes('林鸟玩家-1能量')) { players.filter(p => p.type === '林' && !p.immune).forEach(p => p.energy = Math.max(0, p.energy - 1)); }
+	else if (effect.includes('林鸟玩家+1分+1能量')) { players.filter(p => p.type === '林').forEach(p => { p.energy += 1; p.scoreThisRound = (p.scoreThisRound || 0) + 1; }); }
+	else if (effect.includes('水鸟玩家+1能量')) { players.filter(p => p.type === '水').forEach(p => p.energy += 1); }
+	else if (effect.includes('水鸟玩家-1能量')) { players.filter(p => p.type === '水' && !p.immune).forEach(p => p.energy = Math.max(0, p.energy - 1)); }
+	else if (effect.includes('森林玩家+1能量')) { players.filter(p => p.choice === 'forest').forEach(p => p.energy += 1); }
+	else if (effect.includes('森林玩家-1能量')) { players.filter(p => p.choice === 'forest' && !p.immune).forEach(p => p.energy = Math.max(0, p.energy - 1)); }
+	else if (effect.includes('湿地玩家+1能量')) { players.filter(p => p.choice === 'wetland').forEach(p => p.energy += 1); }
+	else if (effect.includes('湿地玩家-1能量')) { players.filter(p => p.choice === 'wetland' && !p.immune).forEach(p => p.energy = Math.max(0, p.energy - 1)); }
+	else if (effect.includes('湿地玩家+2分')) { players.filter(p => p.choice === 'wetland').forEach(p => p.scoreThisRound = (p.scoreThisRound || 0) + 2); }
+	else if (effect.includes('草地玩家+1能量')) { players.filter(p => p.choice === 'grassland').forEach(p => p.energy += 1); }
+	else if (effect.includes('草地玩家-1能量')) { players.filter(p => p.choice === 'grassland' && !p.immune).forEach(p => p.energy = Math.max(0, p.energy - 1)); }
+	else if (effect.includes('草地玩家+2能量')) { players.filter(p => p.choice === 'grassland').forEach(p => p.energy += 2); }
+	else if (effect.includes('草地玩家+1分+1能量')) { players.filter(p => p.choice === 'grassland').forEach(p => { p.energy += 1; p.scoreThisRound = (p.scoreThisRound || 0) + 1; }); }
+	else if (effect.includes('能量最低的玩家+1能量')) {
+		let minEnergy = Math.min(...players.map(p => p.energy));
+		players.filter(p => p.energy === minEnergy).forEach(p => p.energy += 1);
+	}
+	else if (effect.includes('能量最低的玩家+2能量')) {
+		let minEnergy = Math.min(...players.map(p => p.energy));
+		players.filter(p => p.energy === minEnergy).forEach(p => p.energy += 2);
+	}
+	else if (effect.includes('能量最低的玩家+3能量')) {
+		let minEnergy = Math.min(...players.map(p => p.energy));
+		players.filter(p => p.energy === minEnergy).forEach(p => p.energy += 3);
+	}
+	else if (effect.includes('位置最前的玩家+1能量')) {
+		let maxPos = Math.max(...players.map(p => p.pos));
+		players.filter(p => p.pos === maxPos).forEach(p => p.energy += 1);
+	}
+	else if (effect.includes('位置最前的玩家+1分')) {
+		let maxPos = Math.max(...players.map(p => p.pos));
+		players.filter(p => p.pos === maxPos).forEach(p => p.scoreThisRound = (p.scoreThisRound || 0) + 1);
+	}
+	else if (effect.includes('位置最前的玩家-1能量')) {
+		let maxPos = Math.max(...players.map(p => p.pos));
+		players.filter(p => p.pos === maxPos && !p.immune).forEach(p => p.energy = Math.max(0, p.energy - 1));
+	}
+	else if (effect.includes('位置最后的玩家+1能量+1分')) {
+		let minPos = Math.min(...players.map(p => p.pos));
+		players.filter(p => p.pos === minPos).forEach(p => { p.energy += 1; p.scoreThisRound = (p.scoreThisRound || 0) + 1; });
+	}
+	else if (effect.includes('位置最后的玩家+1分+1能量')) {
+		let minPos = Math.min(...players.map(p => p.pos));
+		players.filter(p => p.pos === minPos).forEach(p => { p.energy += 1; p.scoreThisRound = (p.scoreThisRound || 0) + 1; });
+	}
+	else if (effect.includes('位置最后的玩家+2能量')) {
+		let minPos = Math.min(...players.map(p => p.pos));
+		players.filter(p => p.pos === minPos).forEach(p => p.energy += 2);
+	}
+	else if (effect.includes('位置最后的玩家+2分')) {
+		let minPos = Math.min(...players.map(p => p.pos));
+		players.filter(p => p.pos === minPos).forEach(p => p.scoreThisRound = (p.scoreThisRound || 0) + 2);
+	}
+	else if (effect.includes('位置最后的玩家+1能量+2分')) {
+		let minPos = Math.min(...players.map(p => p.pos));
+		players.filter(p => p.pos === minPos).forEach(p => { p.energy += 1; p.scoreThisRound = (p.scoreThisRound || 0) + 2; });
+	}
+	else if (effect.includes('位置最后的玩家-1能量')) {
+		let minPos = Math.min(...players.map(p => p.pos));
+		players.filter(p => p.pos === minPos && !p.immune).forEach(p => p.energy = Math.max(0, p.energy - 1));
+	}
+	else if (effect.includes('押注1的玩家-1能量')) {
+		players.filter(p => p.hasBet && p.betValue === 1 && !p.immune).forEach(p => p.energy = Math.max(0, p.energy - 1));
+	}
+	else if (effect.includes('押注1的玩家-1分')) {
+		players.filter(p => p.hasBet && p.betValue === 1 && !p.immune).forEach(p => p.scoreThisRound = (p.scoreThisRound || 0) - 1);
+	}
+	else if (effect.includes('押注2的玩家+1分')) {
+		players.filter(p => p.hasBet && p.betValue === 2).forEach(p => p.scoreThisRound = (p.scoreThisRound || 0) + 1);
+	}
+	else if (effect.includes('押注2的玩家+1能量')) {
+		players.filter(p => p.hasBet && p.betValue === 2).forEach(p => p.energy += 1);
+	}
+	else if (effect.includes('押注2的玩家+2能量')) {
+		players.filter(p => p.hasBet && p.betValue === 2).forEach(p => p.energy += 2);
+	}
+	else if (effect.includes('押注2的玩家+1分+1能量')) {
+		players.filter(p => p.hasBet && p.betValue === 2).forEach(p => { p.energy += 1; p.scoreThisRound = (p.scoreThisRound || 0) + 1; });
+	}
+	checkAndHandleDeaths('天时牌效果');
+}
+
+function checkAndHandleDeaths(source) {
+	let deadPlayers = [];
+	state.players.forEach(p => {
+		if (p.alive && p.energy <= 0) { p.alive = false; deadPlayers.push(p); log(`💀 ${p.name} 能量耗尽！`); }
+	});
+	if (deadPlayers.length === 0) return false;
+	let hasAlive = state.players.some(p => p.alive);
+	if (!hasAlive) { showDefeatScreen('所有玩家都倒在了路上...'); return true; }
+	let humanDead = deadPlayers.some(p => p.isHuman);
+	if (humanDead) {
+		let deadNames = deadPlayers.filter(p => p.isHuman).map(p => p.name).join('、');
+		showDefeatScreen(`${deadNames} 能量耗尽，未能抵达越冬地`);
+		return true;
+	} else {
+		log(`⚠️ ${deadPlayers.map(p => p.name).join('、')} 已阵亡，游戏继续`);
+		render();
+		return false;
+	}
+}
+
+function playerSkill() {
+	if(state.gameOver || state.phase !== 'skill') return;
+	let p = getCurrentPlayer();
+	if(!p) { log('请等待AI操作或点击结算'); return; }
+	let choice = prompt(`选择技能：\n1. ${p.skill1.name}：${p.skill1.desc}（${p.skill1.cost}）\n2. ${p.skill2.name}：${p.skill2.desc}（${p.skill2.cost}）\n输入 1 或 2：`, '1');
+	if (choice === null) { return; }
+	let skillNum = parseInt(choice);
+	if (skillNum !== 1 && skillNum !== 2) { log('输入无效，请重试'); return; }
+	p.skillChosen = true;
+	p.skillChoice = skillNum;
+	sfx.skill();
+	let skill = skillNum === 1 ? p.skill1 : p.skill2;
+	log(`🧑 ${p.name} 使用技能：${skill.name}`);
+	if (skill.name === '电瓶警报') {
+		let targets = state.players.filter(p2 => p2.alive && p2.id !== p.id);
+		if (targets.length > 0) {
+			let target = targets[Math.floor(Math.random() * targets.length)];
+			if (!target.immune) { target.scoreThisRound = (target.scoreThisRound || 0) - 1; }
+			showSkillToast('🔊', '电瓶警报', `干扰 ${target.name}，使其-1分`);
+		}
+	} else if (skill.name === '模仿') {
+		showSkillToast('🔄', '模仿', `复制任一玩家技能`);
+	} else if (skill.name === '巧对白头') {
+		showSkillToast('🎯', '巧对白头', `转移天时牌负面效果`);
+	} else if (skill.name === '白头偕老') {
+		showSkillToast('🤝', '白头偕老', `保护自己和队友不受负面效果影响`);
+	} else if (skill.name === '万物神鸟·传信') {
+		showSkillToast('📜', '万物神鸟·传信', `查看天时牌，可重新选栖息地`);
+	} else if (skill.name === '蓬山探路') {
+		let targets = state.players.filter(p2 => p2.alive && p2.id !== p.id);
+		if (targets.length > 0) {
+			let target = targets[Math.floor(Math.random() * targets.length)];
+			showSkillToast('🔍', '蓬山探路', `查看 ${target.name} 的选择`);
+		}
+	} else if (skill.name === '电音干扰') {
+		let targets = state.players.filter(p2 => p2.alive && p2.id !== p.id);
+		if (targets.length > 0) {
+			let target = targets[Math.floor(Math.random() * targets.length)];
+			if (!target.immune) { target.energy = Math.max(0, target.energy - 1); }
+			showSkillToast('🎵', '电音干扰', `${target.name} -1能量`);
+		}
+	} else if (skill.name === 'DJ打碟') {
+		p.energy += 1;
+		showSkillToast('🎧', 'DJ打碟', `获得+1能量`);
+	} else if (skill.name === '水遁术' || skill.name === '中华企鹅' || skill.name === '歌剧魅影' || skill.name === '翘尾巴' || skill.name === '燕子低飞') {
+		p.immune = true;
+		showSkillToast('🛡️', skill.name, `本回合免疫所有负面效果`);
+	} else if (skill.name === '涡轮增鸭') {
+		if (p.energy >= 1) { p.energy -= 1; p.pos += 2; showSkillToast('💨', '涡轮增鸭', `前进2步，消耗1能量`); }
+		else { showSkillToast('⚠️', '涡轮增鸭', `能量不足！`); }
+	} else if (skill.name === '鸭祖宗' || skill.name === '随缘安家') {
+		showSkillToast('🏠', skill.name, `预判选地，下回合+1分`);
+	} else if (skill.name === '黄嘴传家宝') {
+		p.immune = true;
+		showSkillToast('🟡', '黄嘴传家宝', `本回合免疫一次指向性负面效果`);
+	} else if (skill.name === '夜师傅站桩' || skill.name === '浑水摸鱼' || skill.name === '定点悬停') {
+		p.energy += 2;
+		showSkillToast('🧘', skill.name, `获得+2能量`);
+	} else if (skill.name === '城市猎手' || skill.name === '烤串师傅') {
+		let targets = state.players.filter(p2 => p2.alive && p2.id !== p.id);
+		if (targets.length > 0) {
+			let target = targets[Math.floor(Math.random() * targets.length)];
+			if (!target.immune) { target.energy = Math.max(0, target.energy - 1); }
+			showSkillToast('🦅', skill.name, `偷取 ${target.name} 1能量`);
+		}
+	} else if (skill.name === '炫耀' || skill.name === '小猛禽' || skill.name === '蓝色闪电' || skill.name === '喜上眉梢') {
+		p.scoreThisRound = (p.scoreThisRound || 0) + 1;
+		showSkillToast('⭐', skill.name, `获得+1分`);
+	} else if (skill.name === '求偶') {
+		if (state.seasonIndex === 0) { p.scoreThisRound = (p.scoreThisRound || 0) + 2; showSkillToast('💕', '求偶', `春季额外+2分`); }
+		else { showSkillToast('⚠️', '求偶', `只在春季有效`); }
+	} else if (skill.name === '一口闷') {
+		if (p.energy >= 1) { p.energy -= 1; p.pos += 1; p.scoreThisRound = (p.scoreThisRound || 0) + 1; showSkillToast('🐟', '一口闷', `前进1步+1分，消耗1能量`); }
+		else { showSkillToast('⚠️', '一口闷', `能量不足！`); }
+	} else if (skill.name === '工地开工') {
+		if (p.energy >= 1) { p.energy -= 1; p.pos += 2; showSkillToast('🔨', '工地开工', `前进2步，消耗1能量`); }
+		else { showSkillToast('⚠️', '工地开工', `能量不足！`); }
+	} else if (skill.name === '森林医生') {
+		let targets = state.players.filter(p2 => p2.alive);
+		if (targets.length > 0) {
+			let minEnergy = Math.min(...targets.map(p2 => p2.energy));
+			let target = targets.find(p2 => p2.energy === minEnergy);
+			target.energy += 1;
+			showSkillToast('💚', '森林医生', `为 ${target.name} 回复1能量`);
+		}
+	} else if (skill.name === '糊弄筑巢') {
+		p.pos += 1;
+		showSkillToast('🏗️', '糊弄筑巢', `前进1步，不消耗能量`);
+	} else if (skill.name === '白脸探路' || skill.name === '旧时王谢') {
+		let targets = state.players.filter(p2 => p2.alive && p2.id !== p.id);
+		if (targets.length > 0) {
+			let target = targets[Math.floor(Math.random() * targets.length)];
+			showSkillToast('🔍', skill.name, `查看 ${target.name} 的选择`);
+		}
+	} else if (skill.name === '滴滴水' || skill.name === '猪屎渣' || skill.name === '呱唧呱唧') {
+		if (p.energy >= 1) { p.energy -= 1; p.energy += 2; showSkillToast('💧', skill.name, `消耗1能量，获得2能量`); }
+		else { showSkillToast('⚠️', skill.name, `能量不足！`); }
+	} else if (skill.name === '话痨鸟' || skill.name === '喵喵叫') {
+		if (p.energy >= 1) {
+			p.energy -= 1;
+			let targets = state.players.filter(p2 => p2.alive && p2.id !== p.id);
+			if (targets.length > 0) {
+				let target = targets[Math.floor(Math.random() * targets.length)];
+				if (!target.immune) { target.scoreThisRound = (target.scoreThisRound || 0) - 1; }
+				showSkillToast('🗣️', skill.name, `${target.name} -1分`);
+			}
+		} else { showSkillToast('⚠️', skill.name, `能量不足！`); }
+	} else if (skill.name === '黑嘴黄袜子') {
+		if (p.choice === 'wetland') { p.scoreThisRound = (p.scoreThisRound || 0) + 1; showSkillToast('🧦', '黑嘴黄袜子', `湿地+1分`); }
+	} else if (skill.name === '拆迁队') {
+		let targets = state.players.filter(p2 => p2.alive && p2.id !== p.id);
+		if (targets.length > 0) {
+			let target = targets[Math.floor(Math.random() * targets.length)];
+			if (!target.immune) { target.energy = Math.max(0, target.energy - 1); }
+			showSkillToast('🏚️', '拆迁队', `抢走 ${target.name} 1能量`);
+		}
+	}
+	if (skill.cost.includes('-1能量')) p.energy = Math.max(0, p.energy - 1);
+	if (skill.cost.includes('-2能量')) p.energy = Math.max(0, p.energy - 2);
+	if (skill.cost.includes('春季+2分') && state.seasonIndex === 0) p.scoreThisRound = (p.scoreThisRound || 0) + 2;
+	if (skill.cost.includes('冬季+2分') && state.seasonIndex === 3) p.scoreThisRound = (p.scoreThisRound || 0) + 2;
+	if (skill.cost.includes('需候鸟') && p.migrate === '候') p.energy += 1;
+	if (skill.cost.includes('需选湿地') && p.choice === 'wetland') p.scoreThisRound = (p.scoreThisRound || 0) + 1;
+	if (checkAndHandleDeaths('技能使用')) return;
+	render();
+}
+
+function nextRound() {
+	if (state.gameOver) return;
+	if (state.phase === 'skill') {
+		let aiPlayers = state.players.filter(p => p.alive && !p.isHuman && !p.skillChosen && p.hasBet);
+		for (let a of aiPlayers) {
+			let skillChoice = Math.random() < 0.5 ? 1 : 2;
+			a.skillChosen = true;
+			a.skillChoice = skillChoice;
+			let skill = skillChoice === 1 ? a.skill1 : a.skill2;
+			log(`🤖 ${a.name} 使用技能：${skill.name}`);
+			if (skill.name === '鸣唱' || skill.name === '结伴' || skill.name === '热闹' || skill.name === '集群') { a.scoreThisRound = (a.scoreThisRound || 0) + 1; }
+			else if (skill.name === '觅食' || skill.name === '捕鱼' || skill.name === '涉水' || skill.name === '筑巢' || skill.name === '不挑食' || skill.name === '悬停' || skill.name === '鸣叫') { a.energy += 1; }
+			else if (skill.name === '啄木' || skill.name === '俯冲' || skill.name === '烤串') {
+				let targets = state.players.filter(p2 => p2.alive && p2.id !== a.id);
+				if (targets.length > 0) {
+					let target = targets[Math.floor(Math.random() * targets.length)];
+					if (!target.immune) { target.energy = Math.max(0, target.energy - 1); }
+				}
+			} else if (skill.name === '结群') {
+				let sameHabitat = state.players.filter(p2 => p2.alive && p2.choice === a.choice);
+				a.scoreThisRound = (a.scoreThisRound || 0) + sameHabitat.length;
+			} else if (skill.name === '召集') { a.energy += 1; }
+			else if (skill.name === 'DJ打碟' || skill.name === '电瓶警报') { a.energy += 1; }
+			else if (skill.name === '电音干扰' || skill.name === '城市猎手' || skill.name === '烤串师傅' || skill.name === '拆迁队') {
+				let targets = state.players.filter(p2 => p2.alive && p2.id !== a.id);
+				if (targets.length > 0) {
+					let target = targets[Math.floor(Math.random() * targets.length)];
+					if (!target.immune) { target.energy = Math.max(0, target.energy - 1); }
+				}
+			} else if (skill.name === '夜师傅站桩' || skill.name === '浑水摸鱼' || skill.name === '定点悬停') { a.energy += 2; }
+			else if (skill.name === '蓝色闪电' || skill.name === '炫耀' || skill.name === '小猛禽' || skill.name === '喜上眉梢') { a.scoreThisRound = (a.scoreThisRound || 0) + 1; }
+			else if (skill.name === '一口闷' || skill.name === '工地开工') {
+				if (a.energy >= 1) { a.energy -= 1; a.pos += 1; a.scoreThisRound = (a.scoreThisRound || 0) + 1; }
+			} else if (skill.name === '涡轮增鸭' || skill.name === '呱唧呱唧' || skill.name === '滴滴水' || skill.name === '猪屎渣') {
+				if (a.energy >= 1) { a.energy -= 1; a.energy += 2; }
+			} else if (skill.name === '话痨鸟' || skill.name === '喵喵叫') {
+				if (a.energy >= 1) {
+					a.energy -= 1;
+					let targets = state.players.filter(p2 => p2.alive && p2.id !== a.id);
+					if (targets.length > 0) {
+						let target = targets[Math.floor(Math.random() * targets.length)];
+						if (!target.immune) { target.scoreThisRound = (target.scoreThisRound || 0) - 1; }
+					}
+				}
+			} else if (skill.name === '糊弄筑巢') { a.pos += 1; }
+			else if (skill.name === '求偶') {
+				if (state.seasonIndex === 0) { a.scoreThisRound = (a.scoreThisRound || 0) + 2; }
+			} else if (skill.name === '森林医生') {
+				let targets = state.players.filter(p2 => p2.alive);
+				if (targets.length > 0) {
+					let minEnergy = Math.min(...targets.map(p2 => p2.energy));
+					let target = targets.find(p2 => p2.energy === minEnergy);
+					target.energy += 1;
+				}
+			} else if (skill.name === '水遁术' || skill.name === '中华企鹅' || skill.name === '歌剧魅影' || skill.name === '翘尾巴' || skill.name === '燕子低飞') {
+				a.immune = true;
+			}
+			if (skill.cost.includes('-1能量')) a.energy = Math.max(0, a.energy - 1);
+			if (skill.cost.includes('春季+2分') && state.seasonIndex === 0) a.scoreThisRound = (a.scoreThisRound || 0) + 2;
+			if (skill.cost.includes('冬季+2分') && state.seasonIndex === 3) a.scoreThisRound = (a.scoreThisRound || 0) + 2;
+			if (skill.cost.includes('需候鸟') && a.migrate === '候') a.energy += 1;
+			if (skill.cost.includes('需选湿地') && a.choice === 'wetland') a.scoreThisRound = (a.scoreThisRound || 0) + 1;
+		}
+		state.phase = 'result';
+		log('✅ 结算阶段');
+		state.players.forEach(p => {
+			if (!p.alive) return;
+			if (p.ideal.includes(p.choice)) { p.scoreThisRound = (p.scoreThisRound || 0) + 1; }
+			if (p.hasBet && p.betValue > 0) {
+				p.pos += p.betValue;
+				p.energy += p.betValue;
+				log(`💰 ${p.name} 押注奖励：位置 +${p.betValue}，能量 +${p.betValue}`);
+			}
+			p.pos += (p.scoreThisRound || 0);
+			p.energy += (p.scoreThisRound || 0);
+			if (p.pos > gameStats.maxPos) { gameStats.maxPos = p.pos; }
+		});
+		if (checkAndHandleDeaths('结算')) return;
+		state.players.forEach(p => p.immune = false);
+		proceedToNextRound();
+	}
+}
+
+function showResult() {
+	const overlay = document.getElementById('resultOverlay');
+	const box = document.getElementById('resultBox');
+	let alivePlayers = state.players.filter(p => p.alive);
+	let winner = alivePlayers.reduce((a, b) => a.pos > b.pos ? a : b);
+	let allNames = alivePlayers.map(p => p.name).join('、');
+	document.getElementById('resultIcon').textContent = '🏆';
+	if (alivePlayers.length > 1) {
+		document.getElementById('resultTitle').textContent = '🎉 共同越冬成功！';
+		document.getElementById('resultSub').textContent = `${allNames} 都成功抵达了越冬地！`;
+		document.getElementById('resultDetail').textContent = `🏅 领先者：${winner.name}（位置 ${winner.pos}）`;
+	} else {
+		document.getElementById('resultTitle').textContent = '🎉 越冬成功！';
+		document.getElementById('resultSub').textContent = `${winner.name} 成功抵达了越冬地！`;
+		document.getElementById('resultDetail').textContent = `最终位置: ${winner.pos}，能量: ${winner.energy}`;
+	}
+	let statsHtml = alivePlayers.map(p =>
+		`<span style="background:#2e4d30;color:#e9f3df;padding:4px 14px;border-radius:30px;font-size:0.75rem;margin:2px;">${p.name} 📍${p.pos} ⚡${p.energy}</span>`
+	).join('');
+	document.getElementById('resultPos').innerHTML = statsHtml;
+	document.getElementById('resultEnergy').textContent = `🏅 冠军 ${winner.name}`;
+	box.className = 'result-box win';
+	overlay.classList.add('show');
+	sfx.victory();
+	finishGameAndCheckAchievements();
+}
+
+function proceedToNextRound() {
+	let totalRoundsText = gameVersion === 'quick' ? 4 : 12;
+	let currentRound = (state.round - 1) * (gameVersion === 'quick' ? 1 : 3) + state.subRound + 1;
+	if (gameVersion === 'quick') { currentRound = state.round; }
+	if (currentRound >= totalRoundsText) {
+		state.gameOver = true;
+		let alive = state.players.filter(p => p.alive);
+		if (alive.length > 0) { log(`🏆 ${alive.map(p => p.name).join('、')} 越冬成功！`); showResult(); }
+		else { showDefeatScreen('所有玩家都倒在了路上...'); }
+		render();
+		return;
+	}
+	if (gameVersion === 'quick') {
+		state.round++;
+		if (state.round > 4) { state.gameOver = true; return; }
+		showSeasonTransition(state.round - 1).then(() => { applySeason(state.round - 1); resetRoundState(); });
+	} else {
+		state.subRound++;
+		if (state.subRound >= 3) {
+			state.subRound = 0;
+			state.round++;
+			if (state.round > 4) { state.gameOver = true; return; }
+			showSeasonTransition(state.round - 1).then(() => { applySeason(state.round - 1); resetRoundState(); });
+		} else {
+			const s = SEASONS[state.seasonIndex];
+			document.getElementById('seasonBadge').textContent = `${s.icon} ${s.sub[state.subRound]} · ${s.name}季`;
+			resetRoundState();
+		}
+	}
+}
+
+function resetRoundState() {
+	state.players.forEach(p => {
+		p.choice = null; p.originalChoice = null; p.hasBet = false; p.hasSkill = false;
+		p.betValue = 0; p.skillChosen = false; p.skillChoice = 0; p.scoreThisRound = 0;
+		p.immune = false;
+	});
+	state.bet = state.players.map(() => false);
+	state.betAmount = state.players.map(() => 0);
+	state.phase = 'pick';
+	state.eavesdropTriggered = false;
+	isEavesdropPhase = false;
+	weatherFlipped = false;
+	currentWeather = null;
+	const back = document.getElementById('weatherBack');
+	const front = document.getElementById('weatherFront');
+	back.style.display = 'flex';
+	front.style.display = 'none';
+	front.innerHTML = '<div class="big-text">🌤️ 天时</div>';
+	document.getElementById('weatherCard').classList.remove('show-front');
+	log(`🌱 第${state.round}轮开始`);
+	render();
+}
+function closeResult() {
+	document.getElementById('resultOverlay').classList.remove('show');
+	resetGame();
+}
+
+function nextYear() {
+	document.getElementById('resultOverlay').classList.remove('show');
+	currentYear++;
+	document.getElementById('yearDisplay').textContent = '第' + currentYear + '年';
+	gameStats = { maxPos: 0, energyUsed: 0, consecutivePositive: 0, positiveStreak: 0 };
+	state.players.forEach(p => {
+		p.energy = 3; p.pos = 0; p.alive = true;
+		p.choice = null; p.originalChoice = null; p.hasBet = false; p.hasSkill = false;
+		p.betValue = 0; p.skillChosen = false; p.skillChoice = 0; p.scoreThisRound = 0;
+		p.immune = false;
+	});
+	state.round = 1; state.subRound = 0; state.seasonIndex = 0;
+	state.phase = 'pick'; state.gameOver = false;
+	state.eavesdropTriggered = false; isEavesdropPhase = false;
+	weatherFlipped = false; currentWeather = null; defeatShown = false;
+	state.bet = state.players.map(() => false);
+	state.betAmount = state.players.map(() => 0);
+	const back = document.getElementById('weatherBack');
+	const front = document.getElementById('weatherFront');
+	back.style.display = 'flex';
+	front.style.display = 'none';
+	front.innerHTML = '<div class="big-text">🌤️ 天时</div>';
+	document.getElementById('weatherCard').classList.remove('show-front');
+	applySeason(0);
+	let totalRoundsText = gameVersion === 'quick' ? 4 : 12;
+	document.getElementById('roundDisplay').textContent = '第1/' + totalRoundsText + '轮';
+	document.getElementById('log').innerHTML = '🌱 新的一年开始！';
+	render();
+	log('🌱 新的一年开始！');
+}
+
+function resetGame() {
+	if (state && state.players && state.players.length > 0 && !state.gameOver) {
+		let hasAlive = state.players.some(p => p.alive);
+		if (hasAlive && gameStarted) {
+			showQuitDefeatScreen('你中途退出了越冬之旅...');
+			return;
+		}
+	}
+	document.getElementById('resultOverlay').classList.remove('show');
+	document.getElementById('defeatOverlay').classList.remove('show');
+	document.getElementById('app').style.display = 'none';
+	document.getElementById('startOverlay').classList.remove('hidden');
+	document.body.className = 'home';
+	state = {};
+	gameStarted = false;
+	currentYear = 1;
+	selectedBirds = [];
+	birdFlipState = {};
+	weatherFlipped = false;
+	currentWeather = null;
+	gameResultShown = false;
+	isProcessing = false;
+	defeatShown = false;
+	gameStats = { maxPos: 0, energyUsed: 0, consecutivePositive: 0, positiveStreak: 0 };
+	document.querySelectorAll('.btn-group button').forEach(b => b.disabled = false);
+	const back = document.getElementById('weatherBack');
+	const front = document.getElementById('weatherFront');
+	back.style.display = 'flex';
+	front.style.display = 'none';
+	front.innerHTML = '<div class="big-text">🌤️ 天时</div>';
+	document.getElementById('weatherCard').classList.remove('show-front');
+	log('🔄 游戏已重置');
+	updateAchievementBadge();
+}
+
+window.startGame = startGame;
+window.playerPick = playerPick;
+window.playerBet = playerBet;
+window.flipWeatherCard = flipWeatherCard;
+window.playerSkill = playerSkill;
+window.nextRound = nextRound;
+window.resetGame = resetGame;
+window.restartFromDefeat = restartFromDefeat;
+window.closeResult = closeResult;
+window.nextYear = nextYear;
+window.toggleBirdCard = toggleBirdCard;
+window.toggleMusic = toggleMusic;
+window.showAchievements = showAchievements;
+window.closeAchievements = closeAchievements;
+window.closeNewAchieve = closeNewAchieve;
+window.showQuitDefeatScreen = showQuitDefeatScreen;
+window.showKnowledge = showKnowledge;
+window.closeKnowledge = closeKnowledge;
+window.showRulebook = showRulebook;
+window.closeRulebook = closeRulebook;
+window.showVolumeControl = showVolumeControl;
+window.closeVolumeControl = closeVolumeControl;
+window.updateMusicVolume = updateMusicVolume;
+window.updateSfxVolume = updateSfxVolume;
+
+loadAchievements();
+document.body.className = 'home';
+setTimeout(function() { if (!musicPlaying) { toggleMusic(); } }, 500);
+console.log('✅ 游戏加载完成！');
+</script>
+</body>
+</html>
