@@ -1,0 +1,2656 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小黑粘人小鸟桌宠</title>
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  user-select:none;
+}
+body{
+  height:100vh;
+  background:#f5f5f5;
+  overflow:hidden;
+}
+.pet-box{
+  position:fixed;
+  left:120px;
+  top:120px;
+  width:148px;
+  height:168px;
+  cursor:grab;
+  z-index:9999;
+}
+.pet-box:active{
+  cursor:grabbing;
+}
+@keyframes dragShake {
+  0% { transform: translateY(-2px) rotate(-1deg); }
+  100% { transform: translateY(2px) rotate(1deg); }
+}
+.pet-box.dragging{
+  animation:dragShake 0.22s infinite alternate;
+}
+.bird{
+  width:100%;
+  height:100%;
+  position:relative;
+  transition:transform 0.2s ease;
+}
+.bird-ahoge{
+  position:absolute;
+  width:10px;
+  height:34px;
+  background:#000;
+  left:50%;
+  top:18px;
+  transform:translateX(-50%) rotate(0deg);
+  border-radius:50% 50% 45% 45%;
+  transform-origin:center bottom;
+  transition:transform 0.35s ease;
+  z-index:6;
+}
+.bird-ahoge::before{
+  content:"";
+  position:absolute;
+  width:10px;
+  height:18px;
+  background:#000;
+  left:-18px;
+  top:4px;
+  border-radius:50%;
+  transform-origin:center bottom;
+  transform:rotate(-25deg);
+  transition:transform 0.35s ease;
+}
+.bird-ahoge::after{
+  content:"";
+  position:absolute;
+  width:10px;
+  height:18px;
+  background:#000;
+  right:-18px;
+  top:4px;
+  border-radius:50%;
+  transform-origin:center bottom;
+  transform:rotate(25deg);
+  transition:transform 0.35s ease;
+}
+.bird.happy .bird-ahoge{
+  transform:translateX(-50%) rotate(-8deg) scaleY(1.15);
+}
+.bird.confused .bird-ahoge{
+  transform:translateX(-50%) rotate(12deg);
+}
+.bird.confused .bird-ahoge::before{
+  transform:rotate(-15deg);
+}
+.bird.confused .bird-ahoge::after{
+  transform:rotate(18deg);
+}
+.bird-head{
+  position:absolute;
+  width:110px;
+  height:86px;
+  left:18px;
+  top:30px;
+  z-index:5;
+  background:linear-gradient(145deg, #080808 0%, #1a1a1a 48%, #080808 100%);
+  border-radius: 44% 44% 5% 20% / 68% 68% 20% 20%;
+  box-shadow:
+	inset -6px -6px 16px rgba(0,0,0,0.9),
+	inset 6px 6px 16px rgba(255,255,255,0.08);
+	transform-origin: center center;
+  transform: scale(0.92);
+}
+.bird-head::before{
+  content:"";
+  position:absolute;
+  width:100%;
+  height:100%;
+  left:0;
+  top:0;
+  border-radius:inherit;
+  background-image:
+	radial-gradient(circle at 12% 16%, rgba(255,255,255,0.10) 0%, transparent 8%),
+	radial-gradient(circle at 85% 18%, rgba(255,255,255,0.10) 0%, transparent 8%),
+	radial-gradient(circle at 50% 90%, rgba(255,255,255,0.08) 0%, transparent 12%);
+  pointer-events:none;
+}
+.bird-face{
+  position:absolute;
+  width:72px;
+  height:50px;
+  left:50%;
+  top:14px;
+  transform:translateX(-50%);
+  z-index:5;
+}
+.eye-fur{
+  position:absolute;
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.45) 45%, transparent 72%);
+  top:2px;
+  z-index:3;
+}
+.eye-fur-left{left:0;}
+.eye-fur-right{right:0;}
+.eye{
+  position:absolute;
+  width:24px;
+  height:24px;
+  background:#fff;
+  border-radius:50%;
+  top:7px;
+  overflow:hidden;
+  z-index:4;
+  cursor:pointer;
+}
+.eye-left{left:3px;}
+.eye-right{right:3px;}
+.eyeball{
+  position:absolute;
+  width:18px;
+  height:18px;
+  background:#000;
+  border-radius:50%;
+  top:3px;
+  left:3px;
+  transition:transform 0.18s ease;
+}
+.eye-highlight{
+  position:absolute;
+  width:6px;
+  height:6px;
+  background:#fff;
+  border-radius:50%;
+  top:4px;
+  right:4px;
+}
+.eyelid{
+  position:absolute;
+  width:36px;
+  height:0;
+  background:#080808;
+  top:0;
+  left:-6px;
+  border-radius:50%;
+  transition:height 0.22s ease;
+  z-index:5;
+}
+.eye-left .eyelid{left:-6px;}
+.eye-right .eyelid{left:-14px;}
+.mole{
+  position:absolute;
+  width:4px;
+  height:4px;
+  background:#ffffff;
+  border-radius:50%;
+  left:55%;
+  top:32px;
+  z-index:7;
+}
+.blush-left,.blush-right{
+  position:absolute;
+  width:17px;
+  height:17px;
+  background:radial-gradient(ellipse, rgba(255,140,140,0.42), transparent 72%);
+  border-radius:50%;
+  opacity:0;
+  transition:opacity 0.8s ease;
+  z-index:6;
+}
+.blush-left{
+  left:0px;
+  top:28px;
+}
+.blush-right{
+  right:0px;
+  top:28px;
+}
+.bird.blush-on .blush-left,.bird.blush-on .blush-right{
+  opacity:1;
+}
+.bird-beak{
+  position:absolute;
+  width:20px;
+  height:15px;
+  background:#dc2626;
+  left:50%;
+  top:20px;
+  transform:translate(-50%, 0);
+  transform-origin:center top;
+  z-index:6;
+  transition:all 0.18s ease;
+  cursor:pointer;
+  clip-path:polygon(50% 100%, 0 0, 100% 0);
+  border-radius:0;
+}
+.bird-beak.open{
+  width:30px;
+  height:15px;
+  background:#dc2626;
+  clip-path:polygon(50% 100%, 0 0, 100% 0);
+  border-radius:0;
+}
+.bird-beak.smile{
+  width:20px;
+  height:10px;
+  background:#dc2626;
+  clip-path:polygon(50% 100%, 0 0, 100% 0);
+  border-radius:0;
+}
+.bird-beak.surprised{
+  width:24px;
+  height:10px;
+  background:#ff4444;
+  clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  border-radius:0;
+}
+.bird-beak.sleepy{
+  width:17px;
+  height:11px;
+  background:#cc2222;
+  transform:translate(-50%, 0);
+}
+.bird-beak.worry{
+  width:18px;
+  height:18px;
+  clip-path:polygon(50% 0, 0 100%, 100% 100%);
+  top:10px;
+  transform:translate(-50%, 0);
+}
+.bird-body{
+  position:absolute;
+  width:90px;
+  height:64px;
+  background:#111;
+  border-radius:50%;
+  left:29px;
+  top:80px;
+  z-index:2;
+  transform-origin:center top;
+  transition:all 0.25s;
+  cursor:pointer;
+}
+.wing{
+  width:34px;
+  height:52px;
+  background:#050505;
+  border-radius:40%;
+  position:absolute;
+  top:82px;
+  transition:transform 0.35s ease;
+  cursor:pointer;
+}
+.wing-l{
+  left:20px;
+  transform:rotate(12deg);
+  transform-origin:left center;
+}
+.wing-r{
+  right:20px;
+  transform:rotate(-12deg);
+  transform-origin:right center;
+}
+.wing.open{
+  transform:rotate(-38deg) translateY(0);
+}
+.wing-r.open{
+  transform:rotate(38deg) translateY(0);
+}
+.wing.fastflap{
+  animation:fastFlap 0.22s ease-in-out 2;
+}
+.wing-r.fastflap{
+  animation:fastFlapR 0.22s ease-in-out 2;
+}
+.wing.flap{
+  animation:flapWing 0.35s ease-in-out infinite;
+}
+.wing-r.flap{
+  animation:flapWingR 0.35s ease-in-out infinite;
+}
+@keyframes fastFlap {
+  0%{transform:rotate(12deg);}
+  50%{transform:rotate(-38deg);}
+  100%{transform:rotate(12deg);}
+}
+@keyframes fastFlapR {
+  0%{transform:rotate(-12deg);}
+  50%{transform:rotate(38deg);}
+  100%{transform:rotate(-12deg);}
+}
+@keyframes flapWing {
+  0%{transform:rotate(12deg);}
+  50%{transform:rotate(-38deg);}
+  100%{transform:rotate(12deg);}
+}
+@keyframes flapWingR {
+  0%{transform:rotate(-12deg);}
+  50%{transform:rotate(38deg);}
+  100%{transform:rotate(-12deg);}
+}
+.bird-foot{
+  width:16px;
+  height:16px;
+  background:#e62828;
+  border-radius:50%;
+  position:absolute;
+  bottom:31px;
+  cursor:pointer;
+  transition:transform 0.2s ease;
+  z-index:10;
+}
+.bird-foot.retract{
+  transform:translateY(-6px);
+}
+.foot1{left:44px;}
+.foot2{right:44px;}
+.bird.idle{animation:idleBreath 4s infinite ease-in-out;}
+@keyframes idleBreath{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.015);}
+}
+.bird.happy-praise{animation:happyJump 0.32s infinite alternate;}
+@keyframes happyJump {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-8px); }
+}
+.bird.happy-praise .bird-ahoge{
+  animation:ahogeBounce 0.32s infinite alternate;
+}
+@keyframes ahogeBounce {
+  0% { transform: translateX(-50%) rotate(-8deg) scaleY(1.15); }
+  100% { transform: translateX(-50%) rotate(8deg) scaleY(1.25); }
+}
+.bird.happy-praise .foot1{
+  animation:footWiggleLeft 0.32s infinite alternate;
+}
+.bird.happy-praise .foot2{
+  animation:footWiggleRight 0.32s infinite alternate;
+}
+@keyframes footWiggleLeft {
+  0% { transform: translateX(0) translateY(0); }
+  100% { transform: translateX(-3px) translateY(-2px); }
+}
+@keyframes footWiggleRight {
+  0% { transform: translateX(0) translateY(0); }
+  100% { transform: translateX(3px) translateY(-2px); }
+}
+.bird.lie{transform:translateY(12px) scaleY(0.88);}
+.bird.lie .bird-body{border-radius:60% 60% 50% 50%;}
+.bird.eat{animation:eatNod 0.25s infinite alternate;}
+.bird.eat-close{animation:eatNod 0.22s infinite alternate;}
+@keyframes eatNod{
+  0%{transform:translateY(0);}
+  100%{transform:translateY(-4px);}
+}
+.bird.eat .bird-beak,
+.bird.eat-close .bird-beak{
+  animation:eatMouthPulse 0.18s infinite alternate, eatMouthFlash 0.18s infinite alternate;
+}
+@keyframes eatMouthPulse {
+  0% {
+	transform: translate(-50%, 0) scale(1);
+  }
+  100% {
+	transform: translate(-50%, 0) scale(1.15);
+  }
+}
+@keyframes eatMouthFlash {
+  0% {
+	opacity:1;
+  }
+  100% {
+	opacity:0.65;
+  }
+}
+.bird.eat .bird-ahoge{
+  animation:ahogeBounce 0.25s infinite alternate;
+}
+.bird.pet-head .bird-ahoge{
+  animation:ahogePet 0.45s ease-in-out;
+}
+.bird-ahoge.pet-ahoge{
+  animation:ahogePet 0.45s ease-in-out;
+}
+@keyframes ahogePet {
+  0% { transform: translateX(-50%) rotate(0deg); }
+  25% { transform: translateX(-50%) rotate(-12deg) scaleY(1.18); }
+  50% { transform: translateX(-50%) rotate(10deg) scaleY(1.12); }
+  75% { transform: translateX(-50%) rotate(-6deg) scaleY(1.08); }
+  100% { transform: translateX(-50%) rotate(0deg); }
+}
+.bird.sleep{
+  transform: translateY(14px) scaleY(0.85);
+}
+.bird.sleep .bird-body{
+  border-radius:65% 65% 50% 50%;
+  animation:breath 2.8s infinite ease-in-out;
+}
+.bird.sleep .eyelid{
+  height:34px;
+ }
+@keyframes breath{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.04);}
+}
+.food{
+  width:16px;
+  height:16px;
+  background:#cc8822;
+  border-radius:50%;
+  position:absolute;
+  left:56px;
+  top:64px;
+  opacity:0;
+  transform:scale(0.3);
+  transition:all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index:11;
+}
+.food.gone{
+  opacity:0 !important;
+  transform:scale(0) translateY(-8px) !important;
+  pointer-events:none !important;
+}
+/* ===== 配饰通用 ===== */
+.accessory{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:12;
+  display:none;
+}
+.head-accessory{
+  z-index:25;
+}
+.body-accessory{
+  z-index:8;
+}
+
+/* ============================================================ */
+/* ===== 头饰 ===== */
+
+/* 皇冠 */
+.crown{
+  width:28px;
+  height:26px;
+  position:absolute;
+  left:46%;
+  top:28px;
+  transform:translateX(-50%) rotate(-4deg);
+  z-index:25;
+  display:none;
+}
+.crown-main{
+  width:28px;
+  height:14px;
+  background:linear-gradient(180deg,#ffd700 0%,#ffed4e 48%,#ffd700 100%);
+  border-radius:8px 8px 12px 12px;
+  position:relative;
+  box-shadow:0 0 6px rgba(255,215,0,0.5);
+}
+.crown-tip{
+  position:absolute;
+  width:0;
+  height:0;
+  border-left:4px solid transparent;
+  border-right:4px solid transparent;
+  border-bottom:11px solid #ffd700;
+  top:-9px;
+}
+.crown-tip-1{left:2px;}
+.crown-tip-2{left:10px;}
+.crown-tip-3{right:10px;}
+.crown-tip-4{right:2px;}
+.crown-dot{
+  position:absolute;
+  width:3px;
+  height:3px;
+  background:#fff;
+  border-radius:50%;
+  top:5px;
+}
+.crown-dot-1{left:6px;}
+.crown-dot-2{left:13px;}
+.crown-dot-3{right:13px;}
+.crown-dot-4{right:6px;}
+/* 草帽 */
+.hat{
+  position:absolute;
+  left:50%;
+  top:16px;
+  transform:translateX(-50%) rotate(-3deg);
+  z-index:23;
+  width:54px;
+  height:24px;
+  display:none;
+}
+.hat-brim{
+  width:58px;
+  height:8px;
+  background:linear-gradient(180deg,#d4a574 0%,#c4956a 100%);
+  border-radius:50%;
+  position:absolute;
+  bottom:0;
+  left:50%;
+  transform:translateX(-50%);
+  box-shadow:0 2px 5px rgba(0,0,0,0.15);
+}
+.hat-top{
+  width:34px;
+  height:20px;
+  background:linear-gradient(180deg,#e8c8a0 0%,#d4a574 100%);
+  border-radius:50% 50% 20% 20% / 80% 80% 20% 20%;
+  position:absolute;
+  bottom:4px;
+  left:50%;
+  transform:translateX(-50%);
+}
+.hat-band{
+  width:38px;
+  height:4px;
+  background:#c0392b;
+  border-radius:2px;
+  position:absolute;
+  bottom:5px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:2;
+}
+
+/* 粉色蝴蝶结 - 继续下移到24px */
+.bow-pink{
+  position:absolute;
+  left:50%;
+  top:24px;
+  transform:translateX(-50%) rotate(-2deg);
+  z-index:26;
+  width:22px;
+  height:16px;
+  display:none;
+}
+.bow-pink-left{
+  position:absolute;
+  left:0;
+  top:1px;
+  width:11px;
+  height:11px;
+  background:linear-gradient(135deg, #ffb6c1, #ff8a9e 50%, #ff6b7f);
+  border-radius:0 50% 50% 50%;
+  box-shadow:0 1px 4px rgba(255,100,130,0.2);
+}
+.bow-pink-right{
+  position:absolute;
+  right:0;
+  top:1px;
+  width:11px;
+  height:11px;
+  background:linear-gradient(225deg, #ffb6c1, #ff8a9e 50%, #ff6b7f);
+  border-radius:50% 0 50% 50%;
+  box-shadow:0 1px 4px rgba(255,100,130,0.2);
+}
+.bow-pink-center{
+  position:absolute;
+  left:50%;
+  top:2px;
+  transform:translateX(-50%);
+  width:6px;
+  height:7px;
+  background:linear-gradient(180deg, #ff8a9e, #ff6b7f);
+  border-radius:3px;
+  z-index:2;
+}
+
+/* 深蓝蝴蝶结 */
+.bow-blue{
+  position:absolute;
+  left:50%;
+  top:26px;
+  transform:translateX(-50%) rotate(-3deg);
+  z-index:24;
+  width:30px;
+  height:20px;
+  display:none;
+}
+.bow-blue-left{
+  position:absolute;
+  left:0;
+  top:1px;
+  width:15px;
+  height:15px;
+  background:linear-gradient(135deg, #1a2a4a 0%, #2a3a6a 40%, #1a2a4a 100%);
+  border-radius:0 50% 50% 50%;
+  box-shadow:0 1px 6px rgba(0,0,20,0.25), inset -1px -1px 4px rgba(255,215,0,0.12);
+  border:0.5px solid rgba(255,215,0,0.2);
+}
+.bow-blue-right{
+  position:absolute;
+  right:0;
+  top:1px;
+  width:15px;
+  height:15px;
+  background:linear-gradient(225deg, #1a2a4a 0%, #2a3a6a 40%, #1a2a4a 100%);
+  border-radius:50% 0 50% 50%;
+  box-shadow:0 1px 6px rgba(0,0,20,0.25), inset 1px -1px 4px rgba(255,215,0,0.12);
+  border:0.5px solid rgba(255,215,0,0.2);
+}
+.bow-blue-center{
+  position:absolute;
+  left:50%;
+  top:3px;
+  transform:translateX(-50%);
+  width:7px;
+  height:9px;
+  background:linear-gradient(180deg, #2a3a6a, #1a2a4a);
+  border-radius:3px;
+  border:0.5px solid rgba(255,215,0,0.3);
+}
+.bow-blue-center::after{
+  content:"";
+  position:absolute;
+  width:3px;
+  height:3px;
+  background:#ffd700;
+  border-radius:50%;
+  left:2px;
+  top:3px;
+  opacity:0.4;
+}
+.bow-blue-tail{
+  position:absolute;
+  width:4px;
+  height:10px;
+  background:linear-gradient(180deg, #2a3a6a, #1a2a4a);
+  border-radius:0 0 4px 4px;
+  top:14px;
+  border:0.3px solid rgba(255,215,0,0.15);
+}
+.bow-blue-tail-l{left:6px; transform:rotate(-6deg);}
+.bow-blue-tail-r{right:6px; transform:rotate(6deg);}
+
+/* ===== 花冠 - 下移贴头 + 中间小银冠 ===== */
+.flower-crown{
+  position:absolute;
+  left:50%;
+  top:10px;
+  transform:translateX(-50%) rotate(-2deg);
+  z-index:30;
+  width:64px;
+  height:40px;
+  pointer-events:none;
+  display:none;
+}
+/* 头纱 */
+.flower-crown-veil{
+  position:absolute;
+  width:76px;
+  height:50px;
+  background:radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.25) 30%, rgba(255,255,255,0.08) 60%, rgba(255,255,255,0.02) 85%);
+  border-radius:50% 50% 30% 30% / 60% 60% 20% 20%;
+  top:-2px;
+  left:-30px;
+  pointer-events:none;
+  border:0.5px solid rgba(255,255,255,0.15);
+  box-shadow:0 0 30px rgba(255,255,255,0.04);
+}
+/* 左边大花 */
+.flower-left{
+  position:absolute;
+  left:0px;
+  top:25px;
+  width:24px;
+  height:24px;
+}
+.flower-left .petal{
+  position:absolute;
+  width:10px;
+  height:11px;
+  background:radial-gradient(circle at 40% 35%, #ffffff, #fce4ec 40%, #f8bbd0 65%, #e8a0b0);
+  border-radius:50%;
+  transform-origin:center center;
+  border:0.3px solid rgba(255,182,193,0.12);
+  box-shadow:0 0 10px rgba(255,200,210,0.2);
+}
+.flower-left .petal:nth-child(1){transform:rotate(0deg) translate(6.5px, 0px);}
+.flower-left .petal:nth-child(2){transform:rotate(72deg) translate(6.5px, 0px);}
+.flower-left .petal:nth-child(3){transform:rotate(144deg) translate(6.5px, 0px);}
+.flower-left .petal:nth-child(4){transform:rotate(216deg) translate(6.5px, 0px);}
+.flower-left .petal:nth-child(5){transform:rotate(288deg) translate(6.5px, 0px);}
+.flower-left .center{
+  position:absolute;
+  width:8px;
+  height:8px;
+  background:radial-gradient(circle, #ffd700 0%, #ffb300 60%, #e8a000 100%);
+  border-radius:50%;
+  left:50%;
+  top:50%;
+  transform:translate(-50%, -50%);
+  z-index:2;
+  box-shadow:0 0 14px rgba(255,215,0,0.4), 0 0 28px rgba(255,215,0,0.1);
+}
+/* 中间小银冠 - 在花冠正中央 */
+.flower-crown-silver{
+  position:absolute;
+  left:50%;
+  top:23px;
+  transform:translateX(-50%);
+  z-index:31;
+  width:20px;
+  height:14px;
+}
+.flower-crown-silver-base{
+  width:20px;
+  height:8px;
+  background:linear-gradient(180deg, #e8e8f0 0%, #c8c8d8 50%, #b0b0c0 100%);
+  border-radius:4px 4px 8px 8px;
+  position:relative;
+  box-shadow:0 0 8px rgba(200,200,220,0.2);
+  border:0.5px solid rgba(180,180,200,0.1);
+}
+.flower-crown-silver-tip{
+  position:absolute;
+  width:0;
+  height:0;
+  border-left:3px solid transparent;
+  border-right:3px solid transparent;
+  border-bottom:8px solid #d0d0e0;
+  top:-7px;
+}
+.flower-crown-silver-tip-1{left:2px;}
+.flower-crown-silver-tip-2{left:6px;}
+.flower-crown-silver-tip-3{right:2px;}
+.flower-crown-silver-dot{
+  position:absolute;
+  width:2px;
+  height:2px;
+  background:rgba(255,255,255,0.4);
+  border-radius:50%;
+  top:3px;
+}
+.flower-crown-silver-dot-1{left:5px;}
+.flower-crown-silver-dot-2{left:10px;}
+.flower-crown-silver-dot-3{right:5px;}
+/* 右边上花 */
+.flower-right-top{
+  position:absolute;
+  right:2px;
+  top:29px;
+  width:6px;
+  height:18px;
+}
+.flower-right-top .petal{
+  position:absolute;
+  width:8px;
+  height:8px;
+  background:radial-gradient(circle at 40% 35%, #ffffff, #fce4ec 40%, #f48fb1 65%, #e08090);
+  border-radius:50%;
+  transform-origin:center center;
+  border:0.3px solid rgba(255,182,193,0.1);
+  box-shadow:0 0 8px rgba(255,200,210,0.15);
+}
+.flower-right-top .petal:nth-child(1){transform:rotate(0deg) translate(5.5px, 0px);}
+.flower-right-top .petal:nth-child(2){transform:rotate(90deg) translate(5.5px, 0px);}
+.flower-right-top .petal:nth-child(3){transform:rotate(180deg) translate(5.5px, 0px);}
+.flower-right-top .petal:nth-child(4){transform:rotate(270deg) translate(5.5px, 0px);}
+.flower-right-top .center{
+  position:absolute;
+  width:6px;
+  height:6px;
+  background:radial-gradient(circle, #ffd700 0%, #ffb300 60%, #e8a000 100%);
+  border-radius:50%;
+  left:50%;
+  top:50%;
+  transform:translate(-50%, -50%);
+  z-index:2;
+  box-shadow:0 0 10px rgba(255,215,0,0.25);
+}
+/* 右边下花 */
+.flower-right-bottom{
+  position:absolute;
+  right:-1px;
+  top:20px;
+  width:20px;
+  height:20px;
+}
+.flower-right-bottom .petal{
+  position:absolute;
+  width:8px;
+  height:8px;
+  background:radial-gradient(circle at 40% 35%, #fff5f7, #fce4ec 35%, #f06292 60%, #d05070);
+  border-radius:50%;
+  transform-origin:center center;
+  border:0.3px solid rgba(255,182,193,0.08);
+  box-shadow:0 0 8px rgba(255,180,190,0.12);
+}
+.flower-right-bottom .petal:nth-child(1){transform:rotate(0deg) translate(5.5px, 0px);}
+.flower-right-bottom .petal:nth-child(2){transform:rotate(60deg) translate(5.5px, 0px);}
+.flower-right-bottom .petal:nth-child(3){transform:rotate(120deg) translate(5.5px, 0px);}
+.flower-right-bottom .petal:nth-child(4){transform:rotate(180deg) translate(5.5px, 0px);}
+.flower-right-bottom .petal:nth-child(5){transform:rotate(240deg) translate(5.5px, 0px);}
+.flower-right-bottom .petal:nth-child(6){transform:rotate(300deg) translate(5.5px, 0px);}
+.flower-right-bottom .center{
+  position:absolute;
+  width:7px;
+  height:7px;
+  background:radial-gradient(circle, #ffd700 0%, #ffb300 60%, #e8a000 100%);
+  border-radius:50%;
+  left:50%;
+  top:50%;
+  transform:translate(-50%, -50%);
+  z-index:2;
+  box-shadow:0 0 10px rgba(255,215,0,0.25);
+}
+/* 叶子 */
+.flower-leaf{
+  position:absolute;
+  width:5px;
+  height:10px;
+  background:linear-gradient(135deg, rgba(60,140,60,0.4), rgba(80,180,80,0.15));
+  border-radius:0 50% 0 50%;
+}
+.flower-leaf-l1{left:8px; top:14px; transform:rotate(-15deg);}
+.flower-leaf-l2{right:10px; top:3px; transform:rotate(25deg);}
+.flower-leaf-l3{right:6px; top:18px; transform:rotate(5deg);}
+ /* ============================================================ */
+/* ===== 胸饰 ===== */
+
+/* 围巾 */
+.scarf{
+  width:90px;
+  height:26px;
+  position:absolute;
+  left:50%;
+  top:92px;
+  transform:translateX(-50%);
+  z-index:12;
+  display:none;
+}
+.scarf-main{
+  width:90px;
+  height:7px;
+  background:#4285f4;
+  border-radius:10px;
+  background-image: repeating-linear-gradient(90deg,#3374dd 0 3px,transparent 3px 5px);
+}
+.scarf-left{
+  position:absolute;
+  left:26px;
+  top:7px;
+  width:8px;
+  height:14px;
+  background:#4285f4;
+  border-radius:0 0 5px 5px;
+  background-image: repeating-linear-gradient(180deg,#3374dd 0 3px,transparent 3px 5px);
+}
+.scarf-right{
+  position:absolute;
+  right:26px;
+  top:7px;
+  width:13px;
+  height:14px;
+  background:#4285f4;
+  border-radius:0 0 5px 5px;
+  background-image: repeating-linear-gradient(180deg,#3374dd 0 3px,transparent 3px 5px);
+}
+
+/* 围裙 */
+.apron{
+  position:absolute;
+  left:50%;
+  top:96px;
+  transform:translateX(-50%);
+  z-index:9;
+  width:56px;
+  height:42px;
+  display:none;
+}
+.apron-body{
+  width:56px;
+  height:40px;
+  background:linear-gradient(180deg, #f5f0e8 0%, #ede5d8 100%);
+  border-radius:0 0 40% 40% / 0 0 60% 60%;
+  border:2px solid #e0d5c5;
+  position:relative;
+  box-shadow:0 2px 8px rgba(0,0,0,0.06);
+}
+.apron-body::before{
+  content:"🐾";
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%, -50%);
+  font-size:14px;
+  opacity:0.3;
+}
+.apron-string{
+  position:absolute;
+  width:20px;
+  height:3px;
+  background:#e0d5c5;
+  top:2px;
+  border-radius:2px;
+}
+.apron-string-l{left:-14px; transform:rotate(-25deg);}
+.apron-string-r{right:-14px; transform:rotate(25deg);}
+.apron-strap{
+  position:absolute;
+  width:3px;
+  height:12px;
+  background:#e0d5c5;
+  top:-10px;
+  border-radius:2px;
+}
+.apron-strap-l{left:10px; transform:rotate(-10deg);}
+.apron-strap-r{right:10px; transform:rotate(10deg);}
+.apron-pocket{
+  position:absolute;
+  width:16px;
+  height:12px;
+  border:1px solid rgba(200,185,170,0.4);
+  border-radius:0 0 6px 6px;
+  bottom:10px;
+  left:50%;
+  transform:translateX(-50%);
+}
+
+/* 蕾丝领 */
+.collar-lace{
+  position:absolute;
+  left:50%;
+  top:84px;
+  transform:translateX(-50%);
+  z-index:13;
+  width:46px;
+  height:16px;
+  display:none;
+}
+.collar-lace-left{
+  position:absolute;
+  left:0px;
+  top:0px;
+  width:23px;
+  height:14px;
+  background:radial-gradient(ellipse at 60% 100%, rgba(255,255,255,0.95) 0%, rgba(245,240,237,0.9) 100%);
+  border-radius:50% 0 20% 50% / 50% 0 30% 50%;
+  border:0.5px solid rgba(200,190,185,0.15);
+}
+.collar-lace-right{
+  position:absolute;
+  right:0px;
+  top:0px;
+  width:23px;
+  height:14px;
+  background:radial-gradient(ellipse at 40% 100%, rgba(255,255,255,0.95) 0%, rgba(245,240,237,0.9) 100%);
+  border-radius:0 50% 50% 20% / 0 50% 50% 30%;
+  border:0.5px solid rgba(200,190,185,0.15);
+}
+.collar-lace-left::after{
+  content:"";
+  position:absolute;
+  width:16px;
+  height:6px;
+  bottom:1px;
+  left:3px;
+  background:repeating-conic-gradient(
+	from 0deg at 50% 100%,
+	transparent 0deg,
+	rgba(255,255,255,0.4) 4deg,
+	transparent 8deg
+  );
+  border-radius:50%;
+}
+.collar-lace-right::after{
+  content:"";
+  position:absolute;
+  width:16px;
+  height:6px;
+  bottom:1px;
+  right:3px;
+  background:repeating-conic-gradient(
+	from 180deg at 50% 100%,
+	transparent 0deg,
+	rgba(255,255,255,0.4) 4deg,
+	transparent 8deg
+  );
+  border-radius:50%;
+}
+.collar-lace-pearl-l{
+  position:absolute;
+  width:2px;
+  height:2px;
+  background:radial-gradient(circle at 40% 35%, #ffffff, #e8e0da);
+  border-radius:50%;
+}
+.collar-lace-pearl-l:nth-child(1){left:4px; top:4px;}
+.collar-lace-pearl-l:nth-child(2){left:10px; top:3px;}
+.collar-lace-pearl-r{
+  position:absolute;
+  width:2px;
+  height:2px;
+  background:radial-gradient(circle at 40% 35%, #ffffff, #e8e0da);
+  border-radius:50%;
+}
+.collar-lace-pearl-r:nth-child(1){right:4px; top:4px;}
+.collar-lace-pearl-r:nth-child(2){right:10px; top:3px;}
+
+/* ===== 侠客领 - 加宽加大 ===== */
+.collar-wuxia{
+  position:absolute;
+  left:50%;
+  top:80px;
+  transform:translateX(-50%);
+  z-index:13;
+  width:76px;
+  height:38px;
+  display:none;
+}
+.collar-wuxia-left{
+  position:absolute;
+  left:-4px;
+  top:0px;
+  width:42px;
+  height:36px;
+  background:linear-gradient(135deg, #1a1a2e 0%, #2a2a4a 50%, #1a1a2e 100%);
+  clip-path:polygon(0% 0%, 100% 0%, 75% 100%, 0% 100%);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:0 0 0 8px;
+  box-shadow:inset -6px 0 16px rgba(0,0,0,0.35);
+}
+.collar-wuxia-right{
+  position:absolute;
+  right:-4px;
+  top:0px;
+  width:44px;
+  height:36px;
+  background:linear-gradient(225deg, #1a1a2e 0%, #2a2a4a 50%, #1a1a2e 100%);
+  clip-path:polygon(25% 0%, 100% 0%, 100% 100%, 0% 100%);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:0 0 8px 0;
+  box-shadow:inset 6px 0 16px rgba(0,0,0,0.35);
+}
+/* 衣襟边缘亮线 */
+.collar-wuxia-edge{
+  position:absolute;
+  width:2.5px;
+  height:30px;
+  background:linear-gradient(180deg, rgba(200,180,160,0.35), rgba(200,180,160,0.08));
+  left:50%;
+  top:3px;
+  transform:translateX(-50%);
+  border-radius:2px;
+}
+/* 金属扣 - 加大 */
+.collar-wuxia-clasp{
+  position:absolute;
+  width:6px;
+  height:6px;
+  background:radial-gradient(circle at 40% 35%, #d4c0a0, #8a7050);
+  border-radius:50%;
+  border:1px solid rgba(160,128,96,0.25);
+  box-shadow:0 0 8px rgba(200,180,160,0.12);
+}
+.collar-wuxia-clasp:nth-child(1){left:28px; top:7px;}
+.collar-wuxia-clasp:nth-child(2){left:28px; top:20px;}
+/* 小立领 - 加高 */
+.collar-wuxia-collar{
+  position:absolute;
+  width:24px;
+  height:45px;
+  background:linear-gradient(180deg, #2a2a4a, #1a1a2e);
+  border-radius:3px 3px 0 0;
+  left:50%;
+  top:-6px;
+  transform:translateX(-50%);
+  border:0.5px solid rgba(255,255,255,0.04);
+  box-shadow:inset 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* 黑色斜纹领带 */
+.tie-black{
+  width:16px;
+  height:34px;
+  position:absolute;
+  left:50%;
+  top:90px;
+  transform:translateX(-50%);
+  z-index:12;
+  display:none;
+}
+.tie-black-knot{
+  width:16px;
+  height:10px;
+  background:linear-gradient(135deg, #2a2a2a, #4a4a4a 40%, #2a2a2a);
+  border-radius:3px 3px 0 0;
+  border:1px solid rgba(80,80,80,0.2);
+}
+.tie-black-body{
+  width:12px;
+  height:24px;
+  margin:0 auto;
+  background:repeating-linear-gradient(
+	45deg,
+	#2a2a2a 0px,
+	#2a2a2a 3px,
+	#4a4a4a 3px,
+	#4a4a4a 5px,
+	#5a5a5a 5px,
+	#5a5a5a 7px,
+	#4a4a4a 7px,
+	#4a4a4a 9px,
+	#2a2a2a 9px,
+	#2a2a2a 11px
+  );
+  border-radius:0 0 6px 6px;
+  border-left:1px solid rgba(80,80,80,0.1);
+  border-right:1px solid rgba(80,80,80,0.1);
+  border-bottom:1px solid rgba(80,80,80,0.15);
+  box-shadow:inset -1px 0 4px rgba(0,0,0,0.1);
+}
+
+/* 深绿色编织领带 */
+.tie-green{
+  width:16px;
+  height:34px;
+  position:absolute;
+  left:50%;
+  top:90px;
+  transform:translateX(-50%);
+  z-index:12;
+  display:none;
+}
+.tie-green-knot{
+  width:16px;
+  height:10px;
+  background:linear-gradient(135deg, #1a3a2a, #2a5a3a 40%, #1a3a2a);
+  border-radius:3px 3px 0 0;
+  border:1px solid rgba(60,120,80,0.2);
+}
+.tie-green-body{
+  width:12px;
+  height:24px;
+  margin:0 auto;
+  background:repeating-linear-gradient(
+	90deg,
+	#1a3a2a 0px,
+	#1a3a2a 2px,
+	#2a5a3a 2px,
+	#2a5a3a 4px,
+	#3a7a4a 4px,
+	#3a7a4a 6px,
+	#2a5a3a 6px,
+	#2a5a3a 8px,
+	#1a3a2a 8px,
+	#1a3a2a 10px
+  );
+  border-radius:0 0 6px 6px;
+  border-left:1px solid rgba(60,120,80,0.1);
+  border-right:1px solid rgba(60,120,80,0.1);
+  border-bottom:1px solid rgba(60,120,80,0.15);
+  box-shadow:inset -1px 0 4px rgba(0,30,10,0.1);
+}
+
+/* ===== 双排珍珠项链 - 宽度加倍 ===== */
+.necklace-pearl{
+  position:absolute;
+  left:50%;
+  top:88px;
+  transform:translateX(-50%);
+  z-index:11;
+  width:112px;
+  height:22px;
+  display:none;
+  pointer-events:none;
+}
+.necklace-pearl-row1{
+  position:absolute;
+  width:66px;
+  height:14px;
+  border:1px solid rgba(200,190,185,0.08);
+  border-radius:0 0 50% 50% / 0 0 80% 80%;
+  left:50%;
+  top:2px;
+  transform:translateX(-50%);
+}
+.necklace-pearl-row2{
+  position:absolute;
+  width:58px;
+  height:14px;
+  border:1px solid rgba(200,190,185,0.06);
+  border-radius:0 0 50% 50% / 0 0 80% 80%;
+  left:50%;
+  top:8px;
+  transform:translateX(-50%);
+}
+.necklace-pearl-dot{
+  position:absolute;
+  width:5px;
+  height:5px;
+  background:radial-gradient(circle at 40% 35%, #ffffff, #e8e0da);
+  border-radius:50%;
+  box-shadow:0 0 5px rgba(255,255,255,0.08);
+}
+/* 第一排珍珠位置 */
+.necklace-pearl-row1 .necklace-pearl-dot:nth-child(1){left:2px; top:4px;}
+.necklace-pearl-row1 .necklace-pearl-dot:nth-child(2){left:12px; top:1px;}
+.necklace-pearl-row1 .necklace-pearl-dot:nth-child(3){left:22px; top:0px;}
+.necklace-pearl-row1 .necklace-pearl-dot:nth-child(4){left:32px; top:-1px;}
+.necklace-pearl-row1 .necklace-pearl-dot:nth-child(5){left:42px; top:0px;}
+.necklace-pearl-row1 .necklace-pearl-dot:nth-child(6){left:52px; top:1px;}
+.necklace-pearl-row1 .necklace-pearl-dot:nth-child(7){left:62px; top:4px;}
+/* 第二排珍珠位置 */
+.necklace-pearl-row2 .necklace-pearl-dot:nth-child(1){left:2px; top:5px;}
+.necklace-pearl-row2 .necklace-pearl-dot:nth-child(2){left:12px; top:2px;}
+.necklace-pearl-row2 .necklace-pearl-dot:nth-child(3){left:22px; top:0px;}
+.necklace-pearl-row2 .necklace-pearl-dot:nth-child(4){left:32px; top:0px;}
+.necklace-pearl-row2 .necklace-pearl-dot:nth-child(5){left:42px; top:0px;}
+.necklace-pearl-row2 .necklace-pearl-dot:nth-child(6){left:52px; top:2px;}
+.necklace-pearl-row2 .necklace-pearl-dot:nth-child(7){left:62px; top:5px;}
+/* 珍珠吊坠 - 加大 */
+.necklace-pearl-pendant{
+  position:absolute;
+  width:6px;
+  height:9px;
+  background:radial-gradient(ellipse at 40% 30%, #ffffff, #e8e0da);
+  border-radius:50% 50% 40% 40% / 60% 60% 30% 30%;
+  left:50%;
+  bottom:-2px;
+  transform:translateX(-50%);
+  box-shadow:0 0 10px rgba(255,255,255,0.05);
+}
+
+/* ===== 银饰项链 - 宽度加倍 ===== */
+.necklace-silver{
+  position:absolute;
+  left:50%;
+  top:86px;
+  transform:translateX(-50%);
+  z-index:11;
+  width:76px;
+  height:26px;
+  display:none;
+  pointer-events:none;
+}
+.necklace-silver-body{
+  position:absolute;
+  width:70px;
+  height:18px;
+  border:2px solid rgba(180,180,200,0.12);
+  border-radius:0 0 50% 50% / 0 0 80% 80%;
+  left:50%;
+  top:2px;
+  transform:translateX(-50%);
+}
+.necklace-silver-bead{
+  position:absolute;
+  width:6px;
+  height:6px;
+  background:radial-gradient(circle at 40% 35%, #e8e8f0, #c0c0d0);
+  border-radius:50%;
+  border:0.5px solid rgba(180,180,200,0.12);
+  box-shadow:0 0 8px rgba(200,200,220,0.05);
+}
+.necklace-silver-bead:nth-child(1){left:2px; top:6px;}
+.necklace-silver-bead:nth-child(2){left:12px; top:3px;}
+.necklace-silver-bead:nth-child(3){left:22px; top:1px;}
+.necklace-silver-bead:nth-child(4){left:32px; top:0px;}
+.necklace-silver-bead:nth-child(5){left:42px; top:1px;}
+.necklace-silver-bead:nth-child(6){left:52px; top:3px;}
+.necklace-silver-bead:nth-child(7){left:62px; top:6px;}
+/* 银饰吊坠 - 加大 */
+.necklace-silver-pendant{
+  position:absolute;
+  width:8px;
+  height:16px;
+  background:linear-gradient(180deg, #d0d0e0, #b0b0c0);
+  border-radius:5px 5px 8px 8px;
+  left:50%;
+  bottom:-2px;
+  transform:translateX(-50%);
+  border:0.5px solid rgba(160,160,180,0.12);
+  box-shadow:0 0 10px rgba(200,200,220,0.04);
+}
+.necklace-silver-pendant::after{
+  content:"";
+  position:absolute;
+  width:25px;
+  height:4px;
+  border:0.5px solid rgba(160,160,180,0.12);
+  border-radius:50%;
+  left:50%;
+  top:50%;
+  transform:translate(-50%, -50%);
+}
+.necklace-silver-tassel{
+  position:absolute;
+  width:1px;
+  height:10px;
+  background:rgba(200,200,210,0.12);
+  bottom:-10px;
+}
+.necklace-silver-tassel:nth-child(1){left:50%; transform:translateX(-2px);}
+.necklace-silver-tassel:nth-child(2){left:50%; transform:translateX(2px);}
+
+/* ===== 配饰显示控制 ===== */
+.bow-pink.show, .bow-blue.show, .scarf.show, .crown.show, .hat.show, 
+.flower-crown.show, .apron.show, .collar-lace.show, .collar-wuxia.show,
+.tie-black.show, .tie-green.show, .necklace-pearl.show, .necklace-silver.show{
+  display:block;
+}
+/* ===== 对话框 ===== */
+.dialog-box{
+  position:absolute;
+  top:-48px;
+  left:50%;
+  transform:translateX(-50%);
+  padding:8px 16px;
+  background:#ffffff;
+  border-radius:20px;
+  font-size:13px;
+  color:#333;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+  opacity:0;
+  transition:opacity 0.3s;
+  white-space:nowrap;
+  z-index:30;
+  font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+  border:1px solid rgba(0,0,0,0.04);
+}
+.dialog-box::after{
+  content:"";
+  position:absolute;
+  bottom:-7px;
+  left:15%;
+  width:0;
+  height:0;
+  border-left:7px solid transparent;
+  border-right:7px solid transparent;
+  border-top:7px solid #ffffff;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,0.04));
+}
+.dialog-box.show{opacity:1;}
+
+/* ===== 笔记对话框 - 无限停留 ===== */
+.dialog-box.classic-dialog {
+  position:absolute;
+  top:-120px;
+  left:-40px;
+  transform:translateX(0);
+  min-width:270px;
+  max-width:370px;
+  white-space:normal;
+  word-wrap:break-word;
+  padding:16px 20px 12px 20px;
+  font-size:14px;
+  line-height:1.8;
+  background:#ffffff;
+  border:1px solid rgba(0,0,0,0.06);
+  border-radius:24px 24px 24px 4px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.12);
+}
+.dialog-box.classic-dialog::after {
+  content:"";
+  position:absolute;
+  bottom:-8px;
+  left:28px;
+  width:0;
+  height:0;
+  border-left:8px solid transparent;
+  border-right:8px solid transparent;
+  border-top:8px solid #ffffff;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,0.04));
+}
+.dialog-box.classic-dialog .classic-title {
+  display:block;
+  font-weight:600;
+  font-size:14px;
+  color:#4a4a4a;
+  padding-bottom:6px;
+  margin-bottom:6px;
+  padding-right:50px;
+}
+.dialog-box.classic-dialog .classic-quote {
+  display:block;
+  font-size:13px;
+  color:#8B7A5A;
+  background:#f8f6f0;
+  padding:6px 12px;
+  border-radius:12px;
+  margin:4px 0 8px 0;
+  font-style:italic;
+  line-height:1.6;
+}
+
+.classic-close {
+  position:absolute;
+  top:10px;
+  right:14px;
+  width:24px;
+  height:24px;
+  border:none;
+  background:transparent;
+  font-size:18px;
+  color:#999;
+  cursor:pointer;
+  border-radius:50%;
+  transition:all 0.2s;
+  line-height:24px;
+  text-align:center;
+  font-weight:300;
+}
+.classic-close:hover {
+  background:#f0f0f0;
+  color:#333;
+}
+
+.classic-nav {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:12px;
+  margin-top:10px;
+  padding-top:8px;
+  border-top:1px solid #f0f0f0;
+}
+.classic-nav button {
+  width:28px;
+  height:28px;
+  border:none;
+  background:#f5f5f5;
+  border-radius:50%;
+  font-size:14px;
+  cursor:pointer;
+  transition:all 0.2s;
+  color:#555;
+  line-height:28px;
+  text-align:center;
+}
+.classic-nav button:hover {
+  background:#e8e8e8;
+}
+.classic-nav .classic-counter {
+  font-size:12px;
+  color:#999;
+  min-width:40px;
+  text-align:center;
+}
+
+/* ===== 分类标签 - 四个一排 ===== */
+.classic-tags {
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap:4px;
+  margin-top:8px;
+  padding-top:6px;
+  border-top:1px solid #f0f0f0;
+}
+.classic-tag {
+  font-size:10px;
+  padding:3px 4px;
+  border-radius:10px;
+  background:#f5f5f5;
+  color:#999;
+  border:1px solid #eee;
+  transition:all 0.2s;
+  cursor:pointer;
+  text-align:center;
+  white-space:nowrap;
+}
+.classic-tag:hover {
+  background:#f0ebe3;
+  color:#6b5a4a;
+  border-color:#d4c5a0;
+}
+.classic-tag.active {
+  background:#f0ebe3;
+  color:#6b5a4a;
+  border-color:#d4c5a0;
+}
+.classic-tag-icon {
+  margin-right:2px;
+}
+
+.music-note{
+  position:absolute;
+  top:10px;
+  right:-22px;
+  font-size:20px;
+  color:#888;
+  opacity:0;
+  pointer-events:none;
+}
+.bird.sing .music-note{
+  opacity:1;
+}
+.control-group{
+  position:absolute;
+  left:50%;
+  bottom:-48px;
+  transform:translateX(-50%);
+  display:flex;
+  gap:4px;
+  z-index:10;
+  flex-wrap:wrap;
+  justify-content:center;
+  width:200px;
+}
+.btn{
+  width:30px;
+  height:30px;
+  border:none;
+  border-radius:50%;
+  background:#fff;
+  color:#222;
+  font-size:9px;
+  font-weight:500;
+  cursor:pointer;
+  box-shadow:0 2px 6px rgba(0,0,0,0.12);
+  transition:0.2s ease;
+}
+.btn:hover{
+  transform:scale(1.08);
+  background:#fff8c8;
+}
+.btn:active{
+  transform:scale(0.95);
+}
+.btn-classic {
+  background:#f0f0f0;
+  color:#555;
+  font-size:9px;
+}
+.btn-classic:hover {
+  background:#e8e8e8 !important;
+}
+.btn-head {
+  background:#f5ede8;
+  color:#8b6b4a;
+}
+.btn-head:hover {
+  background:#ede0d8 !important;
+}
+.btn-body {
+  background:#e8edf5;
+  color:#4a6b8b;
+}
+.btn-body:hover {
+  background:#d8e0ed !important;
+}
+</style>
+</head>
+<body>
+<div class="pet-box" id="petDrag">
+  <div class="bird idle" id="birdMain">
+	<!-- ===== 头饰 ===== -->
+	<div class="accessory crown head-accessory" id="crownEl">
+	  <div class="crown-main">
+		<div class="crown-tip crown-tip-1"></div>
+		<div class="crown-tip crown-tip-2"></div>
+		<div class="crown-tip crown-tip-3"></div>
+		<div class="crown-tip crown-tip-4"></div>
+		<div class="crown-dot crown-dot-1"></div>
+		<div class="crown-dot crown-dot-2"></div>
+		<div class="crown-dot crown-dot-3"></div>
+		<div class="crown-dot crown-dot-4"></div>
+	  </div>
+	</div>
+
+	<div class="accessory hat head-accessory" id="hatEl">
+	  <div class="hat-top"></div>
+	  <div class="hat-band"></div>
+	  <div class="hat-brim"></div>
+	</div>
+
+	<div class="accessory bow-pink head-accessory" id="bowPinkEl">
+	  <div class="bow-pink-left"></div>
+	  <div class="bow-pink-right"></div>
+	  <div class="bow-pink-center"></div>
+	</div>
+
+	<div class="accessory bow-blue head-accessory" id="bowBlueEl">
+	  <div class="bow-blue-left"></div>
+	  <div class="bow-blue-right"></div>
+	  <div class="bow-blue-center"></div>
+	  <div class="bow-blue-tail bow-blue-tail-l"></div>
+	  <div class="bow-blue-tail bow-blue-tail-r"></div>
+	</div>
+
+	<div class="accessory flower-crown head-accessory" id="flowerCrownEl">
+	  <div class="flower-crown-veil"></div>
+	  <!-- 小银冠在花冠中间 -->
+	  <div class="flower-crown-silver">
+		<div class="flower-crown-silver-base">
+		  <div class="flower-crown-silver-tip flower-crown-silver-tip-1"></div>
+		  <div class="flower-crown-silver-tip flower-crown-silver-tip-2"></div>
+		  <div class="flower-crown-silver-tip flower-crown-silver-tip-3"></div>
+		  <div class="flower-crown-silver-dot flower-crown-silver-dot-1"></div>
+		  <div class="flower-crown-silver-dot flower-crown-silver-dot-2"></div>
+		  <div class="flower-crown-silver-dot flower-crown-silver-dot-3"></div>
+		</div>
+	  </div>
+	  <div class="flower-left">
+		<div class="petal"></div><div class="petal"></div><div class="petal"></div>
+		<div class="petal"></div><div class="petal"></div>
+		<div class="center"></div>
+	  </div>
+	  <div class="flower-right-top">
+		<div class="petal"></div><div class="petal"></div><div class="petal"></div><div class="petal"></div>
+		<div class="center"></div>
+	  </div>
+	  <div class="flower-right-bottom">
+		<div class="petal"></div><div class="petal"></div><div class="petal"></div>
+		<div class="petal"></div><div class="petal"></div><div class="petal"></div>
+		<div class="center"></div>
+	  </div>
+	  <div class="flower-leaf flower-leaf-l1"></div>
+	  <div class="flower-leaf flower-leaf-l2"></div>
+	  <div class="flower-leaf flower-leaf-l3"></div>
+	</div>
+
+	<!-- ===== 胸饰 ===== -->
+	<div class="accessory scarf body-accessory" id="scarfEl">
+	  <div class="scarf-main"></div>
+	  <div class="scarf-left"></div>
+	  <div class="scarf-right"></div>
+	</div>
+
+	<div class="accessory apron body-accessory" id="apronEl">
+	  <div class="apron-body"><div class="apron-pocket"></div></div>
+	  <div class="apron-string apron-string-l"></div>
+	  <div class="apron-string apron-string-r"></div>
+	  <div class="apron-strap apron-strap-l"></div>
+	  <div class="apron-strap apron-strap-r"></div>
+	</div>
+
+	<div class="accessory collar-lace body-accessory" id="collarLaceEl">
+	  <div class="collar-lace-left">
+		<div class="collar-lace-pearl-l"></div>
+		<div class="collar-lace-pearl-l"></div>
+	  </div>
+	  <div class="collar-lace-right">
+		<div class="collar-lace-pearl-r"></div>
+		<div class="collar-lace-pearl-r"></div>
+	  </div>
+	</div>
+
+	<div class="accessory collar-wuxia body-accessory" id="collarWuxiaEl">
+	  <div class="collar-wuxia-left"></div>
+	  <div class="collar-wuxia-right"></div>
+	  <div class="collar-wuxia-edge"></div>
+	  <div class="collar-wuxia-clasp"></div>
+	  <div class="collar-wuxia-clasp"></div>
+	  <div class="collar-wuxia-collar"></div>
+	</div>
+
+	<div class="accessory tie-black body-accessory" id="tieBlackEl">
+	  <div class="tie-black-knot"></div>
+	  <div class="tie-black-body"></div>
+	</div>
+
+	<div class="accessory tie-green body-accessory" id="tieGreenEl">
+	  <div class="tie-green-knot"></div>
+	  <div class="tie-green-body"></div>
+	</div>
+
+	<!-- 双排珍珠项链 - 加宽 -->
+	<div class="accessory necklace-pearl body-accessory" id="necklacePearlEl">
+	  <div class="necklace-pearl-row1">
+		<div class="necklace-pearl-dot"></div>
+		<div class="necklace-pearl-dot"></div>
+		<div class="necklace-pearl-dot"></div>
+		<div class="necklace-pearl-dot"></div>
+		<div class="necklace-pearl-dot"></div>
+		<div class="necklace-pearl-dot"></div>
+		<div class="necklace-pearl-dot"></div>
+	  </div>
+	  <div class="necklace-pearl-row2">
+		<div class="necklace-pearl-dot"></div>
+		<div class="necklace-pearl-dot"></div>
+		<div class="necklace-pearl-dot"></div>
+		<div class="necklace-pearl-dot"></div>
+		<div class="necklace-pearl-dot"></div>
+		<div class="necklace-pearl-dot"></div>
+		<div class="necklace-pearl-dot"></div>
+	  </div>
+	  <div class="necklace-pearl-pendant"></div>
+	</div>
+<!-- 银饰项链 - 加宽 -->
+	<div class="accessory necklace-silver body-accessory" id="necklaceSilverEl">
+	  <div class="necklace-silver-body"></div>
+	  <div class="necklace-silver-bead"></div>
+	  <div class="necklace-silver-bead"></div>
+	  <div class="necklace-silver-bead"></div>
+	  <div class="necklace-silver-bead"></div>
+	  <div class="necklace-silver-bead"></div>
+	  <div class="necklace-silver-bead"></div>
+	  <div class="necklace-silver-bead"></div>
+	  <div class="necklace-silver-pendant"></div>
+	  <div class="necklace-silver-tassel"></div>
+	  <div class="necklace-silver-tassel"></div>
+	</div>
+
+	<div class="bird-ahoge" id="ahogeEl"></div>
+	<div class="bird-head">
+	  <div class="bird-face">
+		<div class="mole"></div>
+		<div class="blush-left"></div>
+		<div class="blush-right"></div>
+		<div class="eye-fur eye-fur-left"></div>
+		<div class="eye eye-left" id="eyeLeft">
+		  <div class="eyelid" id="eyelidLeft"></div>
+		  <div class="eyeball"><div class="eye-highlight"></div></div>
+		</div>
+		<div class="eye-fur eye-fur-right"></div>
+		<div class="eye eye-right" id="eyeRight">
+		  <div class="eyelid" id="eyelidRight"></div>
+		  <div class="eyeball"><div class="eye-highlight"></div></div>
+		</div>
+		<div class="bird-beak" id="beakMain"></div>
+	  </div>
+	</div>
+	<div class="bird-body" id="birdBodyMain"></div>
+
+	<div class="wing wing-l" id="wingLeft"></div>
+	<div class="wing wing-r" id="wingRight"></div>
+	<div class="bird-foot foot1" id="footLeft"></div>
+	<div class="bird-foot foot2" id="footRight"></div>
+	<div class="food" id="foodItem"></div>
+	<div class="dialog-box" id="dialog">快来摸摸呱唧呱唧嘛</div>
+	<div class="music-note">♪</div>
+
+	<div class="control-group">
+	  <button class="btn" id="touchBtn">摸头</button>
+	  <button class="btn" id="praiseBtn">夸夸</button>
+	  <button class="btn" id="feedBtn">投喂</button>
+	  <button class="btn btn-head" id="headBtn">头饰</button>
+	  <button class="btn btn-body" id="bodyBtn">胸饰</button>
+	  <button class="btn btn-classic" id="classicBtn">笔记</button>
+	</div>
+  </div>
+</div>
+<script>
+const petBox = document.getElementById('petDrag');
+const birdMain = document.getElementById('birdMain');
+const beakMain = document.getElementById('beakMain');
+const birdBodyMain = document.getElementById('birdBodyMain');
+const eyes = document.querySelectorAll('.eye .eyelid');
+const eyeballs = document.querySelectorAll('.eyeball');
+const wingLeft = document.getElementById('wingLeft');
+const wingRight = document.getElementById('wingRight');
+const foodItem = document.getElementById('foodItem');
+const dialog = document.getElementById('dialog');
+const noteEl = document.querySelector('.music-note');
+const touchBtn = document.getElementById('touchBtn');
+const praiseBtn = document.getElementById('praiseBtn');
+const feedBtn = document.getElementById('feedBtn');
+const footLeft = document.getElementById('footLeft');
+const footRight = document.getElementById('footRight');
+const ahogeEl = document.getElementById('ahogeEl');
+const headBtn = document.getElementById('headBtn');
+const bodyBtn = document.getElementById('bodyBtn');
+const eyeLeft = document.getElementById('eyeLeft');
+const eyeRight = document.getElementById('eyeRight');
+const eyelidLeft = document.getElementById('eyelidLeft');
+const eyelidRight = document.getElementById('eyelidRight');
+
+// 头饰
+const crownEl = document.getElementById('crownEl');
+const hatEl = document.getElementById('hatEl');
+const bowPinkEl = document.getElementById('bowPinkEl');
+const bowBlueEl = document.getElementById('bowBlueEl');
+const flowerCrownEl = document.getElementById('flowerCrownEl');
+const headItems = [crownEl, hatEl, bowPinkEl, bowBlueEl, flowerCrownEl];
+const headList = ['none', 'crown', 'hat', 'bow-pink', 'bow-blue', 'flower-crown'];
+// 胸饰
+const scarfEl = document.getElementById('scarfEl');
+const apronEl = document.getElementById('apronEl');
+const collarLaceEl = document.getElementById('collarLaceEl');
+const collarWuxiaEl = document.getElementById('collarWuxiaEl');
+const tieBlackEl = document.getElementById('tieBlackEl');
+const tieGreenEl = document.getElementById('tieGreenEl');
+const necklacePearlEl = document.getElementById('necklacePearlEl');
+const necklaceSilverEl = document.getElementById('necklaceSilverEl');
+const bodyItems = [scarfEl, apronEl, collarLaceEl, collarWuxiaEl, tieBlackEl, tieGreenEl, necklacePearlEl, necklaceSilverEl];
+const bodyList = ['none', 'scarf', 'apron', 'collar-lace', 'collar-wuxia', 'tie-black', 'tie-green', 'necklace-pearl', 'necklace-silver'];
+
+const allAccessories = [...headItems, ...bodyItems];
+
+let headIndex = 0;
+let bodyIndex = 0;
+let isSleep = false;
+let dragActive = false;
+let sleepTimer = null;
+let idleTalkTimer = null;
+let dialogHideTimer = null;
+let clickFailTimer = null;
+let idleStateTimer = null;
+let isClassicMode = false;
+let classicCurrentIndex = 0;
+
+const DIALOG_SHOW_TIME = 8000;
+const PRAISE_DURATION = 4000;
+const TOUCH_DURATION = 2200;
+const IDLE_MISS_TIME = 12000;
+const IDLE_SLEEP_TIME = 25000;
+const CLICK_FAIL_DELAY = 6000;
+
+// ===== 唱歌池 =====
+const singPool = [
+  "♪ 把小孩的欲望 封存在这 无烟之地 🎶",
+  "♫ to read and to decipher you 🎶",
+  "🎶 花藤缠绕几行 欣喜后待开放 🎶",
+  "🎶 Snowing flakes in december 🎶",
+  "🎶 Here's Little warmth left over 🎶",
+  "🎶 How long can I bend till I break? 🎶",
+  "🎶 In the paradise we built it just all overused 🎶",
+  "🎶 Dinner that we cooked can make it home 🎶",
+  "🎶 啊 你是一月的河水 一如既往 滚烫 🎶",
+  "🎶 It might be stupid to wear a crown that's not for you 🎶"
+];
+
+// ===== 对话池 =====
+const textPool = {
+  praise: [
+	"嘿嘿嘿爱你主人~",
+	"呜呜你好好，多夸呱唧呱唧几句嘛",
+	"害羞啦，呱唧呱唧蹭蹭你的手手",
+	"开心到蹦蹦，呱唧呱唧最喜欢你啦",
+	"继续夸呱唧呱唧好不好嘛~"
+  ],
+  feedBtn: [
+	"要投喂呱唧呱唧嘛？肚子咕咕叫啦",
+	"快给呱唧呱唧小零食，乖乖等着哦",
+	"干饭呱唧呱唧就位，全部吃光光",
+	"终于开饭啦，再多喂呱唧呱唧几口嘛",
+	"好饿好饿，投喂呱唧呱唧就粘着你"
+  ],
+  feedClose: [
+	"miao miao miao(咀嚼)",
+	"你亲手喂的饭饭，呱唧呱唧觉得最香啦",
+	"呱唧呱唧乖乖张嘴，只吃你给的",
+	"好幸福~❤️",
+	"好吃"
+  ],
+  lie: [
+	"躺平赖着你，不许离开我哦",
+	"好困啦，陪呱唧呱唧一起发呆嘛",
+	"瘫在这里，呱唧呱唧就要粘着你",
+	"不想动，让我靠一会儿",
+	"懒懒趴着，你陪着我就行"
+  ],
+  wake: [
+	"睡醒啦！快来抱抱呱唧呱唧嘛",
+	"呱唧呱唧醒咯，怎么才过来陪呱唧呱唧",
+	"睡饱了，快摸摸呱唧呱唧的脑袋",
+	"睁开眼睛第一件事就是找你",
+	"起床玩耍，不许冷落呱唧呱唧"
+  ],
+  click: [
+	"主人快留下来陪呱唧呱唧玩",
+	"终于理我啦，不要走好不好",
+	"戳我干什么，快多玩一会",
+	"怎么了主人",
+	"既然来了，就陪着呱唧呱唧嘛"
+  ],
+  footLeft: [
+	"别碰呱唧呱唧小爪子，痒痒缩起来啦",
+	"脚丫怕痒呢，轻点摸呱唧呱唧好不好",
+	"痒痒",
+	"爪子很敏感，不许一直摸哦",
+	"咬你哦"
+  ],
+  footRight: [
+	"偷偷缩一下",
+	"痒痒的",
+	"轻轻碰就好，别挠呱唧呱唧脚心啦",
+	"真是的",
+	"脚脚怕痒，安分一点点嘛"
+  ],
+  idleMiss: [
+	"怎么好久都不理呱唧呱唧，呱唧呱唧好想你呀",
+	"孤零零的，快过来陪呱唧呱唧玩耍",
+	"呱唧呱唧一直在等你，不要丢下呱唧呱唧",
+	"主人你在哪里呢，快来摸摸呱唧呱唧嘛",
+	"等了你好久，呱唧呱唧有点孤单了"
+  ],
+  wingLove: [
+	"翅膀软软的，随便摸摸呱唧呱唧啦",
+	"呱唧呱唧翅膀只愿意让你触碰哦",
+	"别一直摸翅膀，呱唧呱唧人家害羞",
+	"靠着你，摸呱唧呱唧翅膀也没关系",
+	"轻轻摸嘛，呱唧呱唧很舒服的呢"
+  ],
+  belly: [
+	"肚皮软乎乎，随便揉随便摸",
+	"揉肚子超舒服，多摸呱唧呱唧一会嘛",
+	"被摸肚子，整只鸟都放松啦",
+	"慢慢揉哦，呱唧呱唧乖乖不动",
+	"暖暖的触感，呱唧呱唧赖着你不走"
+  ],
+  ahogeLove: [
+	"摸呆毛可以，多摸呱唧呱唧几下嘛",
+	"呱唧呱唧乖乖黏着你",
+	"只有你能碰呱唧呱唧的呆毛哦",
+	"摸头好舒服，再摸我一小会",
+	"呱唧呱唧贴紧你啦"
+  ],
+  clothNone: ["摘掉配饰啦，清爽一点～", "干干净净的呱唧呱唧也很可爱", "简简单单陪着你就很好"],
+  clothCrown: ["戴上皇冠啦，呱唧呱唧像小王子！", "皇冠闪闪的～", "头顶皇冠等你夸奖～"],
+  clothHat: ["戴上小草帽，要去晒太阳咯！", "草帽一戴，田园小绅士～", "喜欢这顶草帽！"],
+  clothBowPink: ["粉色蝴蝶结在呆毛上，好甜呀～", "小小的粉色蝴蝶结像糖果！", "呆毛上的蝴蝶结让呱唧呱唧更甜啦！"],
+  clothBowBlue: ["深蓝丝绒蝴蝶结，好优雅！", "金色光泽的蝴蝶结～", "像晚宴上的小绅士！"],
+  clothFlowerCrown: ["花冠贴着头，头纱轻轻飘～", "中间还有银色小王冠！", "像从童话里走出来的小仙子！"],
+  clothScarf: ["围上小围巾啦，暖暖的～", "围巾好安心，呱唧呱唧喜欢", "戴上围巾乖乖粘着你"],
+  clothApron: ["系上小围裙，今天当小厨娘！", "围裙有系带和小口袋～", "穿上围裙好温柔呀！"],
+  clothCollarLace: ["小巧的蕾丝领，像蝴蝶停在肩膀上～", "精致的镂空花边好优雅", "呱唧呱唧变轻盈了～"],
+  clothCollarWuxia: ["侠客领！又宽又大好酷！", "深色衣襟配金属扣，江湖范十足", "呱唧呱唧今天要闯荡江湖！"],
+  clothTieBlack: ["黑色斜纹领带，复古绅士风～", "纹理好精致呀", "戴上领带变大人了！"],
+  clothTieGreen: ["深绿色编织领带，像森林的颜色～", "编织纹理好特别", "低调又优雅！"],
+  clothNecklacePearl: ["双排大珍珠项链，好华丽～", "珍珠在胸前轻轻晃动", "像个贵族小公主！"],
+  clothNecklaceSilver: ["宽宽的银饰项链，大颗银珠闪闪的～", "长吊坠好有民族风", "像苗疆来的小精灵！"],
+  sleepChat: ["zzz 好困，不要打扰呱唧呱唧睡觉", "zzzz 呱唧呱唧睡得香香的呢", "zzz 呱唧呱唧梦里有好吃的零食"],
+  touchEyeLeft: ["干嘛呀", "左眼被戳到啦，轻一点", "不要一直戳眼睛啦"],
+  touchEyeRight: ["别戳右眼啦", "右眼也会偷偷闭起来", "眼睛很敏感的"],
+  idleDaze: ["……", "呆呆看着你", "放空一下"],
+  idleSleep: ["zzz 呱唧呱唧困了", "zzzz 晚安", "呱唧呱唧睡着啦"]
+};
+
+// ===== 配饰名称到对话key的映射 =====
+const clothDialogMap = {
+  'none': 'clothNone',
+  'crown': 'clothCrown',
+  'hat': 'clothHat',
+  'bow-pink': 'clothBowPink',
+  'bow-blue': 'clothBowBlue',
+  'flower-crown': 'clothFlowerCrown',
+  'scarf': 'clothScarf',
+  'apron': 'clothApron',
+  'collar-lace': 'clothCollarLace',
+  'collar-wuxia': 'clothCollarWuxia',
+  'tie-black': 'clothTieBlack',
+  'tie-green': 'clothTieGreen',
+  'necklace-pearl': 'clothNecklacePearl',
+  'necklace-silver': 'clothNecklaceSilver'
+};
+
+// ================================================================
+// ===== 笔记数据 - 选自《文心雕草》 =====
+// ================================================================
+const classicData = [
+  // ===== 🌿 植物区（8篇） =====
+  {
+	category: "plant",
+	title: "荇 · 参差荇菜，左右流之",
+	quote: "荇菜的叶子圆圆的，浮在水面上，像一枚枚小小的铜钱。它的花是黄色的，从水底伸出来，细细的茎，颤颤地开着。",
+	thought: "小呱唧想：《文心雕草》里说，荇菜是诗经里的植物。三千年了，水边的荇菜还在开着。主人，有些东西很古老，但一直活着。我们也是，活在时间里，也活在时间之外。"
+  },
+  {
+	category: "plant",
+	title: "椒 · 贻我握椒，聊以相赠",
+	quote: "花椒树有刺，果子小小的，红红的，挤在一处。古人赠花椒是心意的表达，因为花椒多籽，寓意多子，也寓意温暖。",
+	thought: "小呱唧想：花椒小小的，但味道很浓，像那些小小的、却很重要的心意。主人，有时候不用送很大的礼物，一小把花椒、一片叶子，都是心意。"
+  },
+  {
+	category: "plant",
+	title: "车前草 · 芣苢",
+	quote: "车前草长在路边，叶子宽宽的，像一把把小扇子。它是《诗经》里的芣苢，采了又采，是古人生活里最寻常的草木。",
+	thought: "小呱唧想：车前草是最普通的草，哪里都长，哪里都活。主人不用总想做特别的植物，做一棵车前草也很好，哪里都能安身，哪里都能活。"
+  },
+  {
+	category: "plant",
+	title: "蒹葭 · 所谓伊人，在水一方",
+	quote: "蒹葭就是芦苇，秋天的时候，芦花白茫茫一片。蒹葭是一种很寂寞的植物，它站在水边，等风，也等人。",
+	thought: "小呱唧想：芦苇站了一整个秋天，白了头也没等到那个人。但芦苇还是站着的。主人，等待有时候是漫长的，但站着本身，就是一种姿态。"
+  },
+  {
+	category: "plant",
+	title: "艾草 · 日暖艾蒿香",
+	quote: "艾草的叶子有细细的白毛，闻起来有苦苦的香。艾草是端午的气味，也是故乡的气味。",
+	thought: "小呱唧想：艾草的气味很特别，一闻到，就知道是某个日子到了。主人，气味是记忆的钥匙。你闻到什么味道，会想起谁呢？"
+  },
+  {
+	category: "plant",
+	title: "乌桕 · 乌桕叶红秋日深",
+	quote: "乌桕的叶子到了秋天，变成红的、黄的、紫的，比花还好看。乌桕一身是宝，叶子染秋色，种子做蜡烛。",
+	thought: "小呱唧想：乌桕活得很用力，春天绿，秋天红，冬天光秃秃，每一季都认真活着。主人，认真活过，就算没有观众，也值得。"
+  },
+  {
+	category: "plant",
+	title: "蒲草 · 蒲苇韧如丝",
+	quote: "蒲草的叶子又长又韧，可以编席子，可以织草鞋。蒲草是在水边安家的人，根扎在水里，身子摇在风里。",
+	thought: "小呱唧想：蒲草很柔韧，风来了就弯腰，风停了就直起来。主人，有时候柔软不是软弱，是另一种力量的活法。"
+  },
+  {
+	category: "plant",
+	title: "枸杞 · 枸杞子红时",
+	quote: "枸杞的果子红红的，小小的，像一颗颗小灯笼。枸杞长在篱笆边，红在秋风里。",
+	thought: "小呱唧想：枸杞红的时候，秋天就深了。主人，有些东西在秋天最红，在最冷的时候最甜。别怕季节深，你的好时候也会来。"
+  },
+
+  // ===== 📜 经典区（8篇） =====
+  {
+	category: "classic",
+	title: "《道德经》· 五色令人目盲",
+	quote: "五色令人目盲，五音令人耳聋，五味令人口爽，驰骋畋猎令人心发狂。",
+	thought: "小呱唧想：花花绿绿的屏幕看多了，眼睛会累。主人要不要偶尔放下手机，看看窗外？最简单的东西往往最养人。"
+  },
+  {
+	category: "classic",
+	title: "《道德经》· 知足不辱，知止不殆",
+	quote: "知足不辱，知止不殆，可以长久。",
+	thought: "小呱唧想：懂得满足就不会受屈辱，懂得停止就不会有危险。主人刷手机总是'再看一个'，其实没有尽头。学会停下来，才是自由。"
+  },
+  {
+	category: "classic",
+	title: "《庄子》· 吾生也有涯",
+	quote: "吾生也有涯，而知也无涯。以有涯随无涯，殆矣。",
+	thought: "小呱唧想：人的生命是有限的，知识是无限的。主人不用什么都学，偶尔发发呆、看看天空，心才能自由地飞。"
+  },
+  {
+	category: "classic",
+	title: "《庄子》· 天地有大美而不言",
+	quote: "天地有大美而不言，四时有明法而不议，万物有成理而不说。",
+	thought: "小呱唧想：最美的东西从来不说话。春天的花、夏天的风、秋天的月、冬天的雪，都安安静静的。屏幕里的世界再精彩，也比不上窗外的真实。"
+  },
+  {
+	category: "classic",
+	title: "《黄帝内经》· 上古之人，其知道者",
+	quote: "上古之人，其知道者，法于阴阳，和于术数，食饮有节，起居有常。",
+	thought: "小呱唧想：上古的人吃饭有节制，作息有规律。主人是不是又熬夜看手机了？小呱唧天黑就睡觉，天亮就醒来，你也试试嘛～"
+  },
+  {
+	category: "classic",
+	title: "《黄帝内经》· 久视伤血",
+	quote: "久视伤血，久卧伤气，久坐伤肉，久立伤骨，久行伤筋。",
+	thought: "小呱唧想：看太久伤血，坐太久伤肉。主人眼睛累、脖子酸，快起来走一走，让身体活过来～"
+  },
+  {
+	category: "classic",
+	title: "《菜根谭》· 宠辱不惊",
+	quote: "宠辱不惊，闲看庭前花开花落；去留无意，漫随天外云卷云舒。",
+	thought: "小呱唧想：被人夸了不骄傲，被人骂了不生气，像看花开了又谢，云卷了又舒。主人，不要被网上的评论左右，做自己就好。"
+  },
+  {
+	category: "classic",
+	title: "苏轼《定风波》",
+	quote: "回首向来萧瑟处，归去，也无风雨也无晴。",
+	thought: "小呱唧想：回头看走过的路，风雨和晴天都不重要了。主人，好的坏的都会过去，不要太在意一时的得失。"
+  },
+
+  // ===== 🌍 文学区（7篇） =====
+  {
+	category: "literature",
+	title: "赫尔曼·黑塞《堤契诺之歌》",
+	quote: "我坐在树下，什么都不做，时间像水一样流过。我发现自己并不需要一直做有用的事。",
+	thought: "小呱唧想：黑塞在树下一坐就是一整天，不读书不写字，只是坐着。主人，发呆不是浪费时间。你什么都不做的时候，世界还在好好运转。"
+  },
+  {
+	category: "literature",
+	title: "赫尔曼·黑塞《彷徨少年时》",
+	quote: "每个人的生命都是通向自我的征途。每一条路，都是对自我的探索。",
+	thought: "小呱唧想：黑塞说每个人都在找自己。找自己不是找一个答案，是走一条只有你自己知道的路。主人，不用着急，慢慢走，路会自己长出来。"
+  },
+  {
+	category: "literature",
+	title: "赫尔曼·黑塞《荒原狼》",
+	quote: "你身上的两种灵魂，都在同一条路上寻找归宿。不必杀死其中一个，试着让它们和解。",
+	thought: "小呱唧想：人心里都有两个自己——一个想走出去，一个想留下来。主人不用非要选一个，让它们都活着。"
+  },
+  {
+	category: "literature",
+	title: "加缪《夏天集》",
+	quote: "在隆冬，我终于知道，我身上有一个不可战胜的夏天。",
+	thought: "小呱唧想：最冷的时候，心里有一团火。主人遇到冬天的时候，别忘了你心里也有一个小太阳。"
+  },
+  {
+	category: "literature",
+	title: "里尔克《给一个青年诗人的信》",
+	quote: "要有耐心，对一切尚未解决的事。也许你慢慢地，活到了答案的那一天。",
+	thought: "小呱唧想：很多问题不用急着找答案，带着它们慢慢走。主人不用什么都想通，答案会在该来的时候来。"
+  },
+  {
+	category: "literature",
+	title: "聂鲁达《二十首情诗》",
+	quote: "当华美的叶片落尽，生命的脉络才历历可见。",
+	thought: "小呱唧想：叶子掉光了，树的骨架才露出来。主人不用追求那么多花哨的东西，简单干净就很好。"
+  },
+  {
+	category: "literature",
+	title: "宫泽贤治《不畏风雨》",
+	quote: "不畏雨，不畏风，也不畏冬雪和酷暑。一日食玄米半升，配以味噌和少许蔬菜。",
+	thought: "小呱唧想：不管外面刮风下雨，内心要安稳。主人过简单朴素的日子，有饭吃、有觉睡、有小呱唧陪着，就什么都不怕。"
+  },
+
+  // ===== 🌸 生命区（7篇） =====
+  {
+	category: "life",
+	title: "《庄子》· 人生天地之间",
+	quote: "人生天地之间，若白驹之过隙，忽然而已。",
+	thought: "小呱唧想：人的一生像小白马跑过缝隙，转眼就过去了。主人要把时间用在喜欢的事情上，不要都给了屏幕。"
+  },
+  {
+	category: "life",
+	title: "苏轼《前赤壁赋》",
+	quote: "寄蜉蝣于天地，渺沧海之一粟。哀吾生之须臾，羡长江之无穷。",
+	thought: "小呱唧想：人在天地间像小虫子一样渺小，生命很短，但长江永远在流。正因为短，才更要珍惜每一个当下。"
+  },
+  {
+	category: "life",
+	title: "《论语》· 逝者如斯夫",
+	quote: "逝者如斯夫，不舍昼夜。",
+	thought: "小呱唧想：时间像河水日夜不停地流走。主人想做的事就赶紧去做，时间不等人。"
+  },
+  {
+	category: "life",
+	title: "陶渊明《形影神》",
+	quote: "纵浪大化中，不喜亦不惧。应尽便须尽，无复独多虑。",
+	thought: "小呱唧想：在命运的浪潮里，不用太高兴也不用太害怕。该来的总会来，该走的也会走，想那么多干嘛呢？"
+  },
+  {
+	category: "life",
+	title: "曹操《短歌行》",
+	quote: "对酒当歌，人生几何！譬如朝露，去日苦多。",
+	thought: "小呱唧想：人生像早上的露水，太阳一出来就没了。主人开心起来，和小呱唧一起享受每一天吧！"
+  },
+  {
+	category: "life",
+	title: "《孟子》· 大人者，不失其赤子之心",
+	quote: "大人者，不失其赤子之心者也。",
+	thought: "小呱唧想：真正的大人，是还没有丢掉纯真之心的人。主人看到一朵花会开心，看到蝴蝶会惊喜，这样的你最可爱！"
+  },
+  {
+	category: "life",
+	title: "海子《面朝大海，春暖花开》",
+	quote: "从明天起，做一个幸福的人，喂马、劈柴，周游世界。从明天起，关心粮食和蔬菜。",
+	thought: "小呱唧想：幸福很简单，认真过好每一天的小日子。主人今天吃顿好的、晒晒太阳、陪小呱唧玩一会儿，就已经很幸福了。"
+  }
+];
+
+const categoryConfig = {
+  plant: { icon: '🌿', label: '植物' },
+  classic: { icon: '📜', label: '经典' },
+  literature: { icon: '🌍', label: '文学' },
+  life: { icon: '🌸', label: '生命' }
+};
+
+let classicTimer = null;
+
+// ===== 核心函数 =====
+function showDialog(type){
+  let pickText;
+  if (type === 'sing') {
+	pickText = singPool[Math.floor(Math.random() * singPool.length)];
+  } else {
+	const arr = textPool[type];
+	pickText = arr[Math.floor(Math.random() * arr.length)];
+  }
+  showCustomDialog(pickText);
+}
+
+function showCustomDialog(customText){
+  clearTimeout(dialogHideTimer);
+  dialog.innerText = customText;
+  dialog.classList.add('show');
+  dialog.onmouseenter = () => clearTimeout(dialogHideTimer);
+  dialog.onmouseleave = startDialogCloseTimer;
+  startDialogCloseTimer();
+  if (!isClassicMode) resetIdleTimer();
+}
+
+function startDialogCloseTimer(){
+  dialogHideTimer = setTimeout(() => {
+	dialog.classList.remove('show');
+	dialog.onmouseenter = null;
+	dialog.onmouseleave = null;
+  }, DIALOG_SHOW_TIME);
+}
+
+function openBlush(){ birdMain.classList.add('blush-on'); }
+function closeBlush(){ birdMain.classList.remove('blush-on'); }
+
+function shyCloseEye(){
+  const closeTime = 2000 + Math.random() * 1000;
+  eyes.forEach(lid => lid.style.height = '34px');
+  setTimeout(() => { eyes.forEach(lid => lid.style.height = '0'); }, closeTime);
+}
+
+function touchLongCloseEye(){
+  const closeTime = 3200 + Math.random() * 1000;
+  eyes.forEach(lid => lid.style.height = '34px');
+  setTimeout(() => { eyes.forEach(lid => lid.style.height = '0'); }, closeTime);
+}
+
+function blinkEyesTwice(){
+  eyes.forEach(lid => lid.style.height = '34px');
+  setTimeout(() => eyes.forEach(lid => lid.style.height = '0'), 80);
+  setTimeout(() => eyes.forEach(lid => lid.style.height = '34px'), 160);
+  setTimeout(() => eyes.forEach(lid => lid.style.height = '0'), 240);
+}
+
+function blinkOnce(){
+  eyes.forEach(lid => lid.style.height = '34px');
+  setTimeout(() => eyes.forEach(lid => lid.style.height = '0'), 100);
+}
+
+function setExpression(type){
+  beakMain.classList.remove('open','smile','sleepy','worry','surprised');
+  switch(type){
+	case 'happy': beakMain.classList.add('smile'); break;
+	case 'surprised': beakMain.classList.add('surprised'); break;
+	case 'eat': beakMain.classList.add('open'); eyes.forEach(lid => lid.style.height = '20px'); break;
+	case 'sleep': beakMain.classList.add('sleepy'); break;
+	case 'sad': beakMain.classList.add('worry'); break;
+  }
+}
+function resetIdleTimer(){
+  if (isClassicMode) return;
+  clearTimeout(sleepTimer);
+  clearTimeout(idleTalkTimer);
+  clearTimeout(clickFailTimer);
+  clearTimeout(idleStateTimer);
+  birdMain.classList.remove('sing','sleep','daze');
+  noteEl.style.opacity = 0;
+  idleTalkTimer = setTimeout(() => {
+	if(!isSleep){ showDialog('idleMiss'); setExpression('sad'); }
+  }, IDLE_MISS_TIME);
+  sleepTimer = setTimeout(() => {
+	if(!isSleep){ enterSleep(); }
+  }, IDLE_SLEEP_TIME);
+}
+
+function enterSleep(){
+  if (isClassicMode) return;
+  isSleep = true;
+  birdMain.classList.add('sleep');
+  setExpression('sleep');
+  [wingLeft,wingRight].forEach(w => w.classList.remove('flap','fastflap','open'));
+  showDialog('sleepChat');
+}
+
+function wakeUp(){
+  isSleep = false;
+  birdMain.classList.remove('sleep');
+  setExpression('happy');
+  blinkEyesTwice();
+  showDialog('wake');
+  resetIdleTimer();
+}
+
+function startSinging(){
+  if(isSleep || isClassicMode) return;
+  birdMain.classList.add('sing');
+  noteEl.style.opacity = 1;
+  setExpression('happy');
+  showDialog('sing');
+  [wingLeft,wingRight].forEach(w => w.classList.add('flap'));
+  setTimeout(() => {
+	birdMain.classList.remove('sing');
+	noteEl.style.opacity = 0;
+	[wingLeft,wingRight].forEach(w => w.classList.remove('flap'));
+  }, 4000);
+}
+
+function hideFood(){ foodItem.classList.add('gone'); }
+function showFood(){ foodItem.classList.remove('gone'); foodItem.style.opacity = '1'; foodItem.style.transform = 'scale(1)'; }
+
+function triggerHeadPat(){
+  if (isClassicMode) return;
+  birdMain.classList.add('pet-head');
+  ahogeEl.classList.add('pet-ahoge');
+  setTimeout(() => {
+	birdMain.classList.remove('pet-head');
+	ahogeEl.classList.remove('pet-ahoge');
+  }, 450);
+  showDialog('ahogeLove');
+  touchLongCloseEye();
+  openBlush();
+  setExpression('happy');
+  setTimeout(closeBlush, 2000);
+}
+
+function startEating(){
+  if (isClassicMode) return;
+  birdMain.classList.add('eat');
+  beakMain.classList.add('open');
+  showFood();
+  setTimeout(() => {
+	hideFood();
+	birdMain.classList.remove('eat');
+	beakMain.classList.remove('open');
+	setExpression('happy');
+  }, 2200);
+  openBlush();
+  setTimeout(closeBlush, 1200);
+}
+// ===== 配饰应用函数 =====
+function applyAccessories() {
+  allAccessories.forEach(el => el.classList.remove('show'));
+  
+  const headName = headList[headIndex];
+  if (headName !== 'none') {
+	const headMap = {
+	  'crown': crownEl,
+	  'hat': hatEl,
+	  'bow-pink': bowPinkEl,
+	  'bow-blue': bowBlueEl,
+	  'flower-crown': flowerCrownEl
+	};
+	if (headMap[headName]) headMap[headName].classList.add('show');
+  }
+  
+  const bodyName = bodyList[bodyIndex];
+  if (bodyName !== 'none') {
+	const bodyMap = {
+	  'scarf': scarfEl,
+	  'apron': apronEl,
+	  'collar-lace': collarLaceEl,
+	  'collar-wuxia': collarWuxiaEl,
+	  'tie-black': tieBlackEl,
+	  'tie-green': tieGreenEl,
+	  'necklace-pearl': necklacePearlEl,
+	  'necklace-silver': necklaceSilverEl
+	};
+	if (bodyMap[bodyName]) bodyMap[bodyName].classList.add('show');
+  }
+}
+
+function getClothDialogKey(name) {
+  return clothDialogMap[name] || 'clothNone';
+}
+// ===== 显示笔记 =====
+function renderClassicEntry(index) {
+  const entry = classicData[index];
+  const total = classicData.length;
+  const categories = ['plant', 'classic', 'literature', 'life'];
+  let tagsHtml = '';
+  categories.forEach(c => {
+	const cfg = categoryConfig[c];
+	const isActive = (c === entry.category) ? 'active' : '';
+	tagsHtml += `<span class="classic-tag ${isActive}"><span class="classic-tag-icon">${cfg.icon}</span>${cfg.label}</span>`;
+  });
+  
+  dialog.className = 'dialog-box classic-dialog';
+  dialog.innerHTML = `
+	<button class="classic-close" id="classicCloseBtn">✕</button>
+	<span class="classic-title">${entry.title}</span>
+	<span class="classic-quote">「${entry.quote}」</span>
+	<span>${entry.thought}</span>
+	<div class="classic-nav">
+	  <button id="classicPrev">◀</button>
+	  <span class="classic-counter">${index + 1} / ${total}</span>
+	  <button id="classicNext">▶</button>
+	</div>
+	<div class="classic-tags">${tagsHtml}</div>
+  `;
+  dialog.classList.add('show');
+  
+  document.getElementById('classicCloseBtn').addEventListener('click', function(e) {
+	e.stopPropagation();
+	closeClassicDialog();
+  });
+  
+  document.getElementById('classicPrev').addEventListener('click', function(e) {
+	e.stopPropagation();
+	classicCurrentIndex = (classicCurrentIndex - 1 + classicData.length) % classicData.length;
+	renderClassicEntry(classicCurrentIndex);
+  });
+  
+  document.getElementById('classicNext').addEventListener('click', function(e) {
+	e.stopPropagation();
+	classicCurrentIndex = (classicCurrentIndex + 1) % classicData.length;
+	renderClassicEntry(classicCurrentIndex);
+  });
+  
+  document.querySelectorAll('.classic-tag').forEach((tag, idx) => {
+	tag.addEventListener('click', function() {
+	  const catKey = categories[idx];
+	  const firstIndex = classicData.findIndex(item => item.category === catKey);
+	  if (firstIndex !== -1) {
+		classicCurrentIndex = firstIndex;
+		renderClassicEntry(classicCurrentIndex);
+	  }
+	});
+  });
+}
+
+function showClassicDialog() {
+  clearTimeout(classicTimer);
+  isClassicMode = true;
+  birdMain.classList.add('daze');
+  birdMain.classList.remove('idle', 'sing', 'sleep');
+  [wingLeft, wingRight].forEach(w => w.classList.remove('flap','fastflap','open'));
+  clearTimeout(sleepTimer);
+  clearTimeout(idleTalkTimer);
+  clearTimeout(idleStateTimer);
+  clearTimeout(clickFailTimer);
+  classicCurrentIndex = Math.floor(Math.random() * classicData.length);
+  renderClassicEntry(classicCurrentIndex);
+}
+
+function closeClassicDialog() {
+  clearTimeout(classicTimer);
+  isClassicMode = false;
+  dialog.classList.remove('show');
+  dialog.className = 'dialog-box';
+  dialog.innerHTML = '快来摸摸呱唧呱唧嘛';
+  birdMain.classList.remove('daze');
+  birdMain.classList.add('idle');
+  setExpression('happy');
+  resetIdleTimer();
+}
+
+// ===== 事件绑定 =====
+headBtn.addEventListener('click', function(e) {
+  e.stopPropagation();
+  if (isSleep) { wakeUp(); return; }
+  headIndex = (headIndex + 1) % headList.length;
+  applyAccessories();
+  const name = headList[headIndex];
+  showDialog(getClothDialogKey(name));
+  openBlush();
+  setTimeout(closeBlush, 1500);
+  setExpression('happy');
+});
+
+bodyBtn.addEventListener('click', function(e) {
+  e.stopPropagation();
+  if (isSleep) { wakeUp(); return; }
+  bodyIndex = (bodyIndex + 1) % bodyList.length;
+  applyAccessories();
+  const name = bodyList[bodyIndex];
+  showDialog(getClothDialogKey(name));
+  openBlush();
+  setTimeout(closeBlush, 1500);
+  setExpression('happy');
+});
+
+feedBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  if(isSleep){ wakeUp(); return; }
+  showDialog('feedBtn');
+  startEating();
+});
+
+beakMain.addEventListener('click', e => {
+  e.stopPropagation();
+  if(isSleep){ wakeUp(); return; }
+  showDialog('feedClose');
+  startEating();
+});
+
+touchBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  if(isSleep){ wakeUp(); return; }
+  triggerHeadPat();
+});
+
+praiseBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  if(isSleep){ wakeUp(); return; }
+  showDialog('praise');
+  birdMain.classList.add('happy-praise');
+  setExpression('happy');
+  openBlush();
+  setTimeout(() => {
+	birdMain.classList.remove('happy-praise');
+	closeBlush();
+	setExpression('happy');
+  }, PRAISE_DURATION);
+});
+
+birdBodyMain.addEventListener('click', e => {
+  e.stopPropagation();
+  if(isSleep){ wakeUp(); return; }
+  clearTimeout(clickFailTimer);
+  clickFailTimer = setTimeout(startSinging, CLICK_FAIL_DELAY);
+  showDialog('click');
+  setExpression('happy');
+});
+
+footLeft.addEventListener('click', e => {
+  e.stopPropagation();
+  if(isSleep){ wakeUp(); return; }
+  showDialog('footLeft');
+  footLeft.classList.add('retract');
+  setTimeout(() => footLeft.classList.remove('retract'), 1000);
+  shyCloseEye();
+  ahogeEl.classList.add('pet-ahoge');
+  setTimeout(() => ahogeEl.classList.remove('pet-ahoge'), 600);
+});
+
+footRight.addEventListener('click', e => {
+  e.stopPropagation();
+  if(isSleep){ wakeUp(); return; }
+  showDialog('footRight');
+  footRight.classList.add('retract');
+  setTimeout(() => footRight.classList.remove('retract'), 1000);
+  shyCloseEye();
+  ahogeEl.classList.add('pet-ahoge');
+  setTimeout(() => ahogeEl.classList.remove('pet-ahoge'), 600);
+});
+
+wingLeft.addEventListener('click', e => {
+  e.stopPropagation();
+  if(isSleep){ wakeUp(); return; }
+  showDialog('wingLove');
+  wingLeft.classList.add('open','fastflap');
+  setTimeout(() => wingLeft.classList.remove('open','fastflap'), 1200);
+  openBlush();
+  setTimeout(closeBlush, 1000);
+});
+
+wingRight.addEventListener('click', e => {
+  e.stopPropagation();
+  if(isSleep){ wakeUp(); return; }
+  showDialog('wingLove');
+  wingRight.classList.add('open','fastflap');
+  setTimeout(() => wingRight.classList.remove('open','fastflap'), 1200);
+  openBlush();
+  setTimeout(closeBlush, 1000);
+});
+
+ahogeEl.addEventListener('click', e => {
+  e.stopPropagation();
+  if(isSleep){ wakeUp(); return; }
+  triggerHeadPat();
+});
+
+eyeLeft.addEventListener('click', e => {
+  e.stopPropagation();
+  if(isSleep){ wakeUp(); return; }
+  showDialog('touchEyeLeft');
+  eyelidLeft.style.height = '34px';
+  openBlush();
+  setTimeout(() => { eyelidLeft.style.height = '0'; closeBlush(); }, 1200);
+});
+
+eyeRight.addEventListener('click', e => {
+  e.stopPropagation();
+  if(isSleep){ wakeUp(); return; }
+  showDialog('touchEyeRight');
+  eyelidRight.style.height = '34px';
+  openBlush();
+  setTimeout(() => { eyelidRight.style.height = '0'; closeBlush(); }, 1200);
+});
+
+let offsetX, offsetY;
+petBox.addEventListener('mousedown', e => {
+  dragActive = true;
+  petBox.classList.add('dragging');
+  offsetX = e.clientX - petBox.offsetLeft;
+  offsetY = e.clientY - petBox.offsetTop;
+  clearTimeout(clickFailTimer);
+  resetIdleTimer();
+});
+document.addEventListener('mousemove', e => {
+  if(!dragActive) return;
+  const x = e.clientX - offsetX;
+  const y = e.clientY - offsetY;
+  petBox.style.left = x + 'px';
+  petBox.style.top = y + 'px';
+});
+document.addEventListener('mouseup', () => {
+  dragActive = false;
+  petBox.classList.remove('dragging');
+});
+
+const classicBtn = document.getElementById('classicBtn');
+if (classicBtn) {
+  classicBtn.addEventListener('click', function(e) {
+	e.stopPropagation();
+	if (isClassicMode) {
+	  closeClassicDialog();
+	  return;
+	}
+	if (isSleep) {
+	  wakeUp();
+	  setTimeout(() => showClassicDialog(), 300);
+	  return;
+	}
+	showClassicDialog();
+  });
+}
+
+// ===== 初始化 =====
+applyAccessories();
+resetIdleTimer();
+
+setInterval(() => {
+  if(!isSleep && !birdMain.classList.contains('sing') && !isClassicMode){
+	blinkEyesTwice();
+  }
+}, 6000);
+
+setInterval(() => {
+  if(!isSleep && !birdMain.classList.contains('sing') && !isClassicMode && Math.random() > 0.35){
+	blinkOnce();
+  }
+}, 2000);
+
+setInterval(() => {
+  if(isSleep || dragActive || isClassicMode) return;
+  const states = ['sing','daze','sleep'];
+  const state = states[Math.floor(Math.random() * states.length)];
+  clearTimeout(idleStateTimer);
+  if(state === 'sing'){ startSinging(); }
+  if(state === 'daze'){
+	birdMain.classList.add('daze');
+	showDialog('idleDaze');
+	idleStateTimer = setTimeout(() => {
+	  birdMain.classList.remove('daze');
+	  setExpression('happy');
+	}, 3000);
+  }
+  if(state === 'sleep'){ enterSleep(); }
+}, 20000);
+
+</script>
+</body>
+</html>
